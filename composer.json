@@ -1,0 +1,23 @@
+{
+    "name": "emc/fileinput-bundle",
+    "description": "EMC Fileinput Bundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Chafiq El Mechrafi",
+            "email": "chafiq.elmechrafi@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.9",
+        "symfony/symfony": "2.8.*",
+        "doctrine/orm": "^2.4.8",
+        "stof/doctrine-extensions-bundle": "v1.2.1"
+    },
+    "autoload": {
+        "psr-0": { "EMC\\FileinputBundle": "" }
+    },
+    "target-dir": "EMC/FileinputBundle"
+}

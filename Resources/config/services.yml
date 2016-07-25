@@ -1,0 +1,7 @@
+services:
+    form.type.fileinput:
+        class: EMC\FileInputBundle\Form\Type\FileInputType
+        tags:
+            - { name: form.type, alias: fileinput }
+        calls:
+            - [ setUploadableManager, [@stof_doctrine_extensions.uploadable.manager]]
