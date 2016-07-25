@@ -1,6 +1,6 @@
 <?php
 
-namespace EMC\FileInputBundle\Form\DataTransformer;
+namespace EMC\FileinputBundle\Form\DataTransformer;
 
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;

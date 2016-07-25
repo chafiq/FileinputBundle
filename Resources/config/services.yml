@@ -1,6 +1,6 @@
 services:
     form.type.fileinput:
-        class: EMC\FileInputBundle\Form\Type\FileInputType
+        class: EMC\FileinputBundle\Form\Type\FileinputType
         tags:
             - { name: form.type, alias: fileinput }
         calls:

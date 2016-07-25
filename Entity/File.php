@@ -1,6 +1,6 @@
 <?php
 
-namespace EMC\FileInputBundle\Entity;
+namespace EMC\FileinputBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;

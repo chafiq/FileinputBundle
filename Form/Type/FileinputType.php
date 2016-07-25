@@ -1,6 +1,6 @@
 <?php
 
-namespace EMC\FileInputBundle\Form\Type;
+namespace EMC\FileinputBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -8,10 +8,10 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager;
-use EMC\FileInputBundle\Form\DataTransformer\FileInputDataTransformer;
-use EMC\FileInputBundle\Entity\File;
+use EMC\FileinputBundle\Form\DataTransformer\FileInputDataTransformer;
+use EMC\FileinputBundle\Entity\File;
 
-class FileInputType extends AbstractType
+class FileinputType extends AbstractType
 {
     /**
      *
