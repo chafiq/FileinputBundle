@@ -8,7 +8,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager;
-use EMC\FileinputBundle\Form\DataTransformer\FileInputDataTransformer;
+use EMC\FileinputBundle\Form\DataTransformer\FileinputDataTransformer;
 use EMC\FileinputBundle\Entity\File;
 
 class FileinputType extends AbstractType
@@ -52,7 +52,7 @@ class FileinputType extends AbstractType
             'required' => false
         ));
         
-        $builder->addModelTransformer(new FileInputDataTransformer($this->uploadableManager, $options['multiple']));
+        $builder->addModelTransformer(new FileinputDataTransformer($this->uploadableManager, $options['multiple']));
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)

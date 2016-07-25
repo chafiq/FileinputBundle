@@ -10,7 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager;
 use AppBundle\Entity\File;
 
-class FileInputDataTransformer implements DataTransformerInterface
+class FileinputDataTransformer implements DataTransformerInterface
 {
     /**
      *
