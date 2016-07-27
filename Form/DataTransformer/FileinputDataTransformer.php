@@ -8,7 +8,7 @@ use Doctrine\ORM\PersistentCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager;
-use AppBundle\Entity\File;
+use EMC\FileinputBundle\Entity\File;
 
 class FileinputDataTransformer implements DataTransformerInterface
 {
@@ -23,9 +23,15 @@ class FileinputDataTransformer implements DataTransformerInterface
      */
     private $isMultiple;
     
-    function __construct(UploadableManager $uploadableManager, $isMultiple) {
+    /**
+     * @var string
+     */
+    private $fileClass;
+    
+    function __construct(UploadableManager $uploadableManager, $fileClass, $isMultiple) {
         $this->uploadableManager = $uploadableManager;
         $this->isMultiple = $isMultiple;
+        $this->fileClass = $fileClass;
     }
 
     public function transform($files)
@@ -78,7 +84,7 @@ class FileinputDataTransformer implements DataTransformerInterface
                     if ($uploadedFile === null) {
                         continue;
                     }
-                    $file = new File();
+                    $file = new $this->fileClass;
                     $file->setPath($uploadedFile);
                     $this->uploadableManager->markEntityToUpload($file, $file->getPath());
                     $entities[] = $file;
@@ -98,7 +104,7 @@ class FileinputDataTransformer implements DataTransformerInterface
                 return $file;
             }
             
-            $file = new File();
+            $file = new $this->fileClass;
             $file->setPath($files['path']);
             $this->uploadableManager->markEntityToUpload($file, $file->getPath());
             

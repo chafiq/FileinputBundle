@@ -5,3 +5,4 @@ services:
             - { name: form.type, alias: fileinput }
         calls:
             - [ setUploadableManager, [@stof_doctrine_extensions.uploadable.manager]]
+            - [ setFileClass, [%emc_fileinput.file_class%]]

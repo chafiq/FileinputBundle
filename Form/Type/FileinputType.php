@@ -14,13 +14,21 @@ use EMC\FileinputBundle\Entity\File;
 class FileinputType extends AbstractType
 {
     /**
-     *
      * @var UploadableManager
      */
     private $uploadableManager;
     
+    /**
+     * @var string
+     */
+    private $fileClass;
+    
     function setUploadableManager(UploadableManager $uploadableManager) {
         $this->uploadableManager = $uploadableManager;
+    }
+    
+    function setFileClass($fileClass) {
+        $this->fileClass = $fileClass;
     }
 
     public function buildView(FormView $view, FormInterface $form, array $options)
@@ -42,7 +50,7 @@ class FileinputType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {        
         $builder->add('path', 'file', array(
-            'data_class' => null    ,
+            'data_class' => null,
             'required' => false,
             'multiple' => $options['multiple'],
             'mapped' => true
@@ -52,7 +60,7 @@ class FileinputType extends AbstractType
             'required' => false
         ));
         
-        $builder->addModelTransformer(new FileinputDataTransformer($this->uploadableManager, $options['multiple']));
+        $builder->addModelTransformer(new FileinputDataTransformer($this->uploadableManager, $this->fileClass, $options['multiple']));
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
