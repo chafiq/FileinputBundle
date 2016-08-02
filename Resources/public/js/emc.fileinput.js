@@ -1,7 +1,7 @@
 $(function(){
     $('input[type=file].fileinput').each(function(item){
         var that = this;
-        var deletedFiles = document.getElementById($(that).data('deletedIds'));
+        var deletedFiles = document.getElementById(that.getAttribute('_delete'));
     
         var removeImage = function(id, thumbnail) {
             var deletedFileIds = deletedFiles.value.length > 0 ? deletedFiles.value.split(',') : [];
@@ -24,11 +24,12 @@ $(function(){
                 });
         };
         
+        var files = JSON.parse(this.getAttribute('data-files'));
         $(this).fileinput({
-            initialPreview: $(this).data('files').map(function(file){
+            initialPreview: files.map(function(file){
                 return '<img src="' + file.path + '" class="file-preview-image"/>';
             }),
-            initialPreviewConfig: $(this).data('files').map(function(file){
+            initialPreviewConfig: files.map(function(file){
                 return { key: file.id };
             }),
             maxFileSize: 5000,
@@ -36,7 +37,6 @@ $(function(){
             initialCaption: "Files(s)",
             browseIcon : '<i class="icon-browse"></i>',
             removeIcon : '<i class="icon-close"></i>',
-//            allowedFileExtensions: ["jpg", "png", "gif"],
             showUpload: false,
             showRemove: this.multiple,
             validateInitialCount: true,
@@ -66,7 +66,7 @@ $(function(){
             }
         })
         .on('fileimageloaded', function(event){
-            var deletedFiles = document.getElementById($(that).data('deletedIds'));
+            var deletedFiles = document.getElementById(that.getAttribute('_delete'));
             var deletedFileIds = deletedFiles.value.length > 0 ? deletedFiles.value.split(',') : [];
 
             $fileinput

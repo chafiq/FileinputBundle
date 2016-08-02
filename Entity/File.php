@@ -9,10 +9,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Abstract File Entity
  * @ORM\MappedSuperclass
+ * @ORM\HasLifecycleCallbacks
  */
-abstract class File
+abstract class File implements FileInterface
 {
-    public static $extensions = array(
+    protected static $extensions = array(
         'txt' => "text/plain",
         'csv' => "text/plain",
         'png' => "image/png",
@@ -77,13 +78,6 @@ abstract class File
     protected $path;
 
     /**
-     * @ORM\Column(name="name", type="string")
-     * @Asser\NotBlank
-     * @var string
-     */
-    protected $name;
-    
-    /**
      * @ORM\Column(name="mime_type", type="string")
      * @Gedmo\UploadableFileMimeType
      * @var string
@@ -102,8 +96,46 @@ abstract class File
      */
     private $_path;
     
+    /**
+     * @var boolean
+     */
+    private $_safeDelete;
+    
     public function __clone(){
         $this->id = null;
+    }
+    
+    /**
+     * @ORM\PreFlush()
+     */
+    public function preFlush() {
+        if ($this->_safeDelete) {
+            unlink($this->path);
+        }
+    }
+    
+    /**
+     * @ORM\PostRemove()
+     */
+    public function postRemove() {
+        $this->_safeDelete = true;
+    }
+    
+    /**
+     * @ORM\PreUpdate()
+     * @ORM\PrePersist()
+     */
+    public function preUpdate() {
+        if ( $this->path === null ) {
+            $this->path = $this->_path;
+        }
+    }
+    
+    /**
+     * @ORM\PostLoad()
+     */
+    public function postLoad() {
+        $this->_path = $this->path;
     }
     
     /**
@@ -138,30 +170,6 @@ abstract class File
     public function getPath()
     {
         return $this->path;
-    }
-
-    /**
-     * Set name
-     *
-     * @param string $name
-     *
-     * @return File
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 
     /**
@@ -216,27 +224,6 @@ abstract class File
         return $this->size;
     }
     
-    /**
-     * @ORM\PreUpdate()
-     * @ORM\PrePersist()
-     */
-    public function preUpdate() {
-        if ( $this->path === null ) {
-            $this->path = $this->_path;
-        }
-        
-        if ( $this->name === null ) {
-            $this->name = $this->path;
-        }
-    }
-    
-    /**
-     * @ORM\PostLoad()
-     */
-    public function postLoad() {
-        $this->_path = $this->path;
-    }
-    
     public function getExtension() {
         if (strlen($this->path) === 0){
             return null;
@@ -267,7 +254,7 @@ abstract class File
         return substr($this->path, 1);
     }
     
-    public function getData() {
+    public function getMetadata() {
         return array(
             'id'  => $this->getId(),
             'path' => $this->getUrl(),
@@ -275,5 +262,9 @@ abstract class File
             'size' => $this->getHumanReadableSize(),
             'extension' => $this->getExtension()
         );
+    }
+    
+    public static function getAllowedMimeTypes() {
+        return static::$extensions;
     }
 }

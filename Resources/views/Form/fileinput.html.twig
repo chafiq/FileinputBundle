@@ -1,6 +1,6 @@
 {% block fileinput_widget %}
     {% spaceless %}
-        {{ form_widget(form.path, {"attr" : attr|merge({ "data-files" : value|json_encode(), 'data-deleted-ids' : form.deletedIds.vars.id})} ) }}
-        {{ form_widget(form.deletedIds) }}
+        {{ form_widget(form.path, {"attr" : attr|merge({"class":"fileinput form-control", "data-files" : files|json_encode(), '_delete' : form._delete.vars.id})} ) }}
+        {{ form_widget(form._delete) }}
     {% endspaceless %}
 {% endblock %}
