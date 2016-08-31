@@ -101,6 +101,10 @@ abstract class File implements FileInterface
      */
     private $_safeDelete;
     
+    public function __toString() {
+        return $this->getUrl();
+    }
+    
     public function __clone(){
         $this->id = null;
     }
