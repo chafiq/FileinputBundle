@@ -23,6 +23,17 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('file_class')->isRequired()->cannotBeEmpty()->end()
+                ->arrayNode('providers')
+                    ->children()
+                        ->arrayNode('vimeo')
+                            ->children()
+                                ->scalarNode('client_id')->isRequired()->cannotBeEmpty()->end()
+                                ->scalarNode('client_secret')->isRequired()->cannotBeEmpty()->end()
+                                ->scalarNode('access_token')->end()
+                                ->scalarNode('scope')->cannotBeEmpty()->defaultValue('private interact create edit upload delete public')->end()
+                            ->end()
+                        ->end()
+                    ->end()
             ->end();
                 
         return $treeBuilder;

@@ -71,7 +71,7 @@ abstract class File implements FileInterface
     protected $id;
     
     /**
-     * @ORM\Column(name="path", type="string")
+     * @ORM\Column(name="path", type="string", unique=true)
      * @Gedmo\UploadableFilePath
      * @var string
      */
@@ -233,7 +233,7 @@ abstract class File implements FileInterface
             return null;
         }
         if (($extension = strstr($this->path, '.')) === FALSE) {
-            throw new \UnexpectedValueException(sprintf('File path "%s" is not valid !.', $this->path));
+            return null;
         }
         return $extension;
     }

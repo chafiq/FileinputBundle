@@ -2,12 +2,10 @@
 
 namespace EMC\FileinputBundle\Form\DataTransformer;
 
-use Symfony\Component\Form\DataTransformerInterface;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager;
-use EMC\FileinputBundle\Entity\File;
+use EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager;
 
 class MultipleFileDataTransformer implements DataTransformerInterface
 {
@@ -20,6 +18,11 @@ class MultipleFileDataTransformer implements DataTransformerInterface
      * @var string
      */
     private $fileClass;
+    
+    /**
+     * @var string
+     */
+    private $driver;
     
     function __construct(UploadableManager $uploadableManager, $fileClass) {
         $this->uploadableManager = $uploadableManager;
@@ -59,12 +62,17 @@ class MultipleFileDataTransformer implements DataTransformerInterface
                 }
                 $file = new $this->fileClass;
                 $file->setPath($uploadedFile);
-                $this->uploadableManager->markEntityToUpload($file, $file->getPath());
+                $this->uploadableManager->markEntityToUpload($file, $uploadedFile);
                 $collection->add($file);
             }
         }
 
         return $collection;
     }
+
+    public function setDriver($driver) {
+        $this->driver = $driver;
+    }
+
 }
 

@@ -2,11 +2,10 @@
 
 namespace EMC\FileinputBundle\Form\DataTransformer;
 
-use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Form\Exception\TransformationFailedException;
-use Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager;
 use EMC\FileinputBundle\Entity\FileInterface;
+use EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager;
 
 class FileDataTransformer implements DataTransformerInterface
 {
@@ -19,6 +18,11 @@ class FileDataTransformer implements DataTransformerInterface
      * @var string
      */
     private $fileClass;
+    
+    /**
+     * @var string
+     */
+    private $driver;
     
     function __construct(UploadableManager $uploadableManager, $fileClass) {
         $this->uploadableManager = $uploadableManager;
@@ -46,12 +50,17 @@ class FileDataTransformer implements DataTransformerInterface
         if ($data['path'] instanceof UploadedFile) {
             $file = new $this->fileClass;
             $file->setPath($data['path']);
-            $this->uploadableManager->markEntityToUpload($file, $file->getPath());
+            $this->uploadableManager->markEntityToUpload($file, $data['path'], $this->driver);
 
             return $file;
         }
         
         throw new TransformationFailedException('Fileinput data transform error!');
     }
+
+    public function setDriver($driver) {
+        $this->driver = $driver;
+    }
+
 }
 

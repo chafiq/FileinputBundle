@@ -1,8 +1,42 @@
 services:
-    form.type.fileinput:
+    emc.fileinput.form.type:
         class: EMC\FileinputBundle\Form\Type\FileinputType
         tags:
             - { name: form.type, alias: fileinput }
         calls:
-            - [ setUploadableManager, [@stof_doctrine_extensions.uploadable.manager]]
+            - [ setUploadableManager, [@emc.fileinput.uploadable.manager]]
             - [ setFileClass, [%emc_fileinput.file_class%]]
+
+    emc.fileinput.uploadable.manager:
+        class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager
+        arguments: [@doctrine.orm.entity_manager, @emc.fileinput.uploadable.registry]
+            
+    emc.fileinput.uploadable.registry:
+        class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableRegistry
+        arguments: [[]]
+        calls:
+            - [setContainer, [@service_container]]
+    
+    emc.fileinput.uploadable.listener.default:
+        class: EMC\FileinputBundle\Gedmo\Uploadable\DefaultUploadableListener
+        parent: stof_doctrine_extensions.listener.uploadable
+        
+    emc.fileinput.uploadable.manager.default:
+        class: %stof_doctrine_extensions.uploadable.manager.class%
+        arguments: [@emc.fileinput.uploadable.listener.default, %stof_doctrine_extensions.uploadable.default_file_info.class%]
+        tags:
+            - { name: emc.fileinput.uploadable, alias: default }
+    
+    emc.fileinput.uploadable.listener.vimeo:
+        class: EMC\FileinputBundle\Gedmo\Uploadable\VimeoUploadableListener
+        parent: stof_doctrine_extensions.listener.uploadable
+        tags:
+            - { name: doctrine.event_subscriber }
+        calls:
+            - [init, [%emc_fileinput.providers.vimeo%]]
+        
+    emc.fileinput.uploadable.manager.vimeo:
+        class: %stof_doctrine_extensions.uploadable.manager.class%
+        arguments: [@emc.fileinput.uploadable.listener.vimeo, %stof_doctrine_extensions.uploadable.default_file_info.class%]
+        tags:
+            - { name: emc.fileinput.uploadable, alias: vimeo }

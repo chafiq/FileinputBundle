@@ -7,38 +7,47 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager;
 use EMC\FileinputBundle\Form\DataTransformer\FileDataTransformer;
 use EMC\FileinputBundle\Form\DataTransformer\MultipleFileDataTransformer;
 use EMC\FileinputBundle\Entity\FileInterface;
+use EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager;
+use EMC\FileinputBundle\Form\DataTransformer\DataTransformerInterface;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormEvent;
+use Doctrine\Common\Annotations\AnnotationReader;
+use EMC\FileinputBundle\Annotation\Fileinput;
 
-class FileinputType extends AbstractType
-{
+class FileinputType extends AbstractType {
+
     /**
      * @var UploadableManager
      */
     private $uploadableManager;
-    
+
     /**
      * @var string
      */
     private $fileClass;
     
+    /**
+     * @var DataTransformerInterface 
+     */
+    private $dataTransformer;
+
     function setUploadableManager(UploadableManager $uploadableManager) {
         $this->uploadableManager = $uploadableManager;
     }
-    
+
     function setFileClass($fileClass) {
         $this->fileClass = $fileClass;
     }
 
-    public function buildView(FormView $view, FormInterface $form, array $options)
-    {
+    public function buildView(FormView $view, FormInterface $form, array $options) {
         $files = array();
-        
+
         if ($options['multiple']) {
             if (is_array($view->vars['value'])) {
-                foreach($view->vars['value']['_path'] as $file) {
+                foreach ($view->vars['value']['_path'] as $file) {
                     $files[] = $file->getMetadata();
                 }
             }
@@ -49,39 +58,61 @@ class FileinputType extends AbstractType
         }
         $view->vars['files'] = $files;
     }
-    
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {        
+
+    public function buildForm(FormBuilderInterface $builder, array $options) {
+        $builder->add('_delete', 'hidden', array(
+            'required' => false
+        ));
+
         $builder->add('path', 'file', array(
             'data_class' => null,
             'required' => false,
             'multiple' => $options['multiple'],
             'mapped' => true,
             'attr' => array(
-                'accept' => $options['accept']
-            )
+                'accept' => $options['accept'],
+                'data-max-file-size' => $options['max_size']
+            ),
+            'post_max_size_message' => $options['max_size']
         ));
         
-        $builder->add('_delete', 'hidden', array(
-            'required' => false
-        ));
+        
         
         $modelDataTransformerClass = $options['multiple'] ? MultipleFileDataTransformer::class : FileDataTransformer::class;
-        $builder->addModelTransformer(new $modelDataTransformerClass($this->uploadableManager, $this->fileClass));
+        $dataTransformer = new $modelDataTransformerClass($this->uploadableManager, $this->fileClass);
+        $builder->addModelTransformer($dataTransformer);
+        $this->dataTransformer = $dataTransformer;
+        
+        $builder->addEventListener(FormEvents::POST_SET_DATA, function(FormEvent $event) use ($dataTransformer){
+            $form = $event->getForm();
+            
+            $dataClass = $form->getParent()->getConfig()->getDataClass();
+            $property = $form->getName();
+            
+            $reflectionProperty = new \ReflectionProperty($dataClass, $property);
+
+            // Prepare doctrine annotation reader
+            $reader = new AnnotationReader();
+            
+            /* @var $annotation Fileinput */
+            if ($annotation = $reader->getPropertyAnnotation($reflectionProperty, Fileinput::class)) {
+                $dataTransformer->setDriver($annotation->getDriver());
+            }
+        });
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
-    {
+    public function setDefaultOptions(OptionsResolverInterface $resolver) {
         parent::setDefaultOptions($resolver);
         $resolver->setDefaults(array(
             'data_class' => null,
-            'multiple'  => false,
-            'accept' => implode(',', array())
+            'multiple' => false,
+            'accept' => '',
+            'max_size' => 100000
         ));
     }
 
-    public function getName()
-    {
+    public function getName() {
         return 'fileinput';
     }
+
 }
