@@ -32,6 +32,7 @@ class UploadableManager {
      */
     public function markEntityToUpload($entity, $fileInfo, $driver)
     {
+        /* @var $uploadableManager \Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager */
         $uploadableManager = $this->registry->get($driver ?: 'default');
         $uploadableManager->markEntityToUpload($entity, $fileInfo);
     }

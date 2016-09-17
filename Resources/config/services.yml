@@ -19,7 +19,12 @@ services:
     
     emc.fileinput.uploadable.listener.default:
         class: EMC\FileinputBundle\Gedmo\Uploadable\DefaultUploadableListener
-        parent: stof_doctrine_extensions.listener.uploadable
+        arguments: [@stof_doctrine_extensions.uploadable.mime_type_guesser]
+        calls:
+            - [setAnnotationReader, [@annotation_reader]]
+            - [setDefaultFileInfoClass, [%stof_doctrine_extensions.uploadable.default_file_info.class%]]
+        tags:
+            - { name: doctrine.event_subscriber }
         
     emc.fileinput.uploadable.manager.default:
         class: %stof_doctrine_extensions.uploadable.manager.class%
@@ -29,11 +34,13 @@ services:
     
     emc.fileinput.uploadable.listener.vimeo:
         class: EMC\FileinputBundle\Gedmo\Uploadable\VimeoUploadableListener
-        parent: stof_doctrine_extensions.listener.uploadable
+        arguments: [@stof_doctrine_extensions.uploadable.mime_type_guesser]
+        calls:
+            - [setAnnotationReader, [@annotation_reader]]
+            - [setDefaultFileInfoClass, [%stof_doctrine_extensions.uploadable.default_file_info.class%]]
+            - [init, [%emc_fileinput.providers.vimeo%]]
         tags:
             - { name: doctrine.event_subscriber }
-        calls:
-            - [init, [%emc_fileinput.providers.vimeo%]]
         
     emc.fileinput.uploadable.manager.vimeo:
         class: %stof_doctrine_extensions.uploadable.manager.class%
