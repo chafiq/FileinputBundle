@@ -29,7 +29,9 @@ class EMCFileinputExtension extends Extension {
         foreach ($config['providers'] as $name => $config) {
             switch ($name) {
                 case 'vimeo':
-                    $container->setParameter('emc_fileinput.providers.vimeo', $config);
+                    foreach($config as $key => $value) {
+                        $container->setParameter('emc_fileinput.providers.vimeo.' . $key, $value);
+                    }
                     break;
             }
         }

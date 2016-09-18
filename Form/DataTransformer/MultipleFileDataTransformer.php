@@ -5,30 +5,9 @@ namespace EMC\FileinputBundle\Form\DataTransformer;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager;
 
-class MultipleFileDataTransformer implements DataTransformerInterface
+class MultipleFileDataTransformer extends AbstractDataTransformer
 {
-    /**
-     * @var UploadableManager
-     */
-    private $uploadableManager;
-    
-    /**
-     * @var string
-     */
-    private $fileClass;
-    
-    /**
-     * @var string
-     */
-    private $driver;
-    
-    function __construct(UploadableManager $uploadableManager, $fileClass) {
-        $this->uploadableManager = $uploadableManager;
-        $this->fileClass = $fileClass;
-    }
-
     public function transform($files)
     {
         if ($files instanceof Collection) {
@@ -62,17 +41,12 @@ class MultipleFileDataTransformer implements DataTransformerInterface
                 }
                 $file = new $this->fileClass;
                 $file->setPath($uploadedFile);
-                $this->uploadableManager->markEntityToUpload($file, $uploadedFile);
+                $this->markEntityToUpload($file, $uploadedFile);
                 $collection->add($file);
             }
         }
 
         return $collection;
     }
-
-    public function setDriver($driver) {
-        $this->driver = $driver;
-    }
-
 }
 

@@ -2,38 +2,43 @@
 
 namespace EMC\FileinputBundle\Gedmo\Uploadable;
 
-use Gedmo\Uploadable\UploadableListener;
 use Gedmo\Uploadable\FileInfo\FileInfoInterface;
-use Vimeo\Vimeo;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
+use EMC\FileinputBundle\Entity\FileInterface;
 
-class VimeoUploadableListener extends UploadableListener implements UploadableListenerInterface {
+class VimeoUploadableListener extends DefaultUploadableListener implements UploadableListenerInterface {
 
     /**
-     * @var Vimeo
+     * @var DriverInterface
      */
-    private $vimeo;
+    private $driver;
     
-    public function init($config) {
-        $this->vimeo = new Vimeo($config['client_id'], $config['client_secret']);
-        $this->vimeo->setToken($config['access_token'] ?: $this->getAccessToken($config['scope']));
+    public function setDriver($driver) {
+        $this->driver = $driver;
     }
     
-    protected function getAccessToken($scope) {
-        $token = $this->vimeo->clientCredentials($scope);
-        return $token['body']['access_token'];
+    public function getSubscribedEvents() {
+        $subscribedEvents = parent::getSubscribedEvents();
+        $subscribedEvents[] = 'postLoad';
+        return $subscribedEvents;
+    }
+
+    public function postLoad(LifecycleEventArgs $args) {
+        $object = $args->getObject();
+        
+        if ($object instanceof FileInterface && $object->getDriver() === 'vimeo') {
+            $object->setDriver($object->getDriver(), $this->driver);
+        }
     }
     
     public function moveFile(FileInfoInterface $fileInfo, $path, $filenameGeneratorClass = false, $overwrite = false, $appendNumber = false, $object) {
+        
+        $settings = $this->getSettings($object);
+        
         $info = parent::moveFile($fileInfo, $path, $filenameGeneratorClass, $overwrite, $appendNumber, $object);
         
-        $response = $this->vimeo->upload($fileInfo->getTmpName(), false);
+        $info['filePath'] = $this->driver->upload($fileInfo->getTmpName(), $settings);
 
-        if (!preg_match('`/videos/[0-9]+`', $response)) {
-            throw new \Exception('Unable to upload file.');
-        }
-        
-        $info['filePath'] = $response;
-        
         return $info;
     }
     
@@ -42,6 +47,31 @@ class VimeoUploadableListener extends UploadableListener implements UploadableLi
     }
 
     public function removeFile($filePath) {
-        return $this->vimeo->request($filePath, array(), 'DELETE');
+        return $this->driver->delete($filePath);
+    }
+    
+    private function getSettings($object) {
+        
+        $oid = spl_object_hash($object);
+        if (!isset($this->extraFileInfoObjects[$oid])) {
+            throw new \RuntimeException;
+        }
+        
+        $owner = $this->extraFileInfoObjects[$oid]['owner'];
+        
+        /* @var $annotation \EMC\FileinputBundle\Annotation\Fileinput */
+        $annotation = $this->extraFileInfoObjects[$oid]['annotation'];
+        
+        $settings = $annotation->getSettings() ?: array();
+
+        if ($annotation->getTitle() && method_exists($owner, $method = 'get' . ucfirst($annotation->getTitle()))) {
+            $settings['name'] = call_user_method( $method, $owner);
+        }
+        
+        if ($annotation->getDescription() && method_exists($owner, $method = 'get' . ucfirst($annotation->getDescription()))) {
+            $settings['description'] = call_user_method( $method, $owner);
+        }
+        
+        return $settings;
     }
 }

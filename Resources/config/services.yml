@@ -38,7 +38,7 @@ services:
         calls:
             - [setAnnotationReader, [@annotation_reader]]
             - [setDefaultFileInfoClass, [%stof_doctrine_extensions.uploadable.default_file_info.class%]]
-            - [init, [%emc_fileinput.providers.vimeo%]]
+            - [setDriver, [@emc.vimeo]]
         tags:
             - { name: doctrine.event_subscriber }
         
@@ -47,3 +47,12 @@ services:
         arguments: [@emc.fileinput.uploadable.listener.vimeo, %stof_doctrine_extensions.uploadable.default_file_info.class%]
         tags:
             - { name: emc.fileinput.uploadable, alias: vimeo }
+    
+    emc.vimeo:
+        class: EMC\FileinputBundle\Driver\VimeoDriver
+        arguments:
+            - %emc_fileinput.providers.vimeo.client_id%
+            - %emc_fileinput.providers.vimeo.client_secret%
+            - %emc_fileinput.providers.vimeo.access_token%
+            - %emc_fileinput.providers.vimeo.settings%
+            - %emc_fileinput.providers.vimeo.whitelist%

@@ -87,9 +87,4 @@ interface FileInterface {
      * @return array
      */
     public function getMetadata();
-    
-    /**
-     * @return array
-     */
-    public static function getAllowedMimeTypes();
 }

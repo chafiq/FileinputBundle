@@ -96,7 +96,8 @@ class FileinputType extends AbstractType {
             
             /* @var $annotation Fileinput */
             if ($annotation = $reader->getPropertyAnnotation($reflectionProperty, Fileinput::class)) {
-                $dataTransformer->setDriver($annotation->getDriver());
+                $dataTransformer->setAnnotation($annotation);
+                $dataTransformer->setOwner($form->getParent()->getData());
             }
         });
     }

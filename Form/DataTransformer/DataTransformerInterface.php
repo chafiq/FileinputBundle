@@ -11,5 +11,4 @@ namespace EMC\FileinputBundle\Form\DataTransformer;
 use Symfony\Component\Form\DataTransformerInterface as BaseDataTransformerInterface;
 
 interface DataTransformerInterface extends BaseDataTransformerInterface {
-    public function setDriver($driver);
 }
