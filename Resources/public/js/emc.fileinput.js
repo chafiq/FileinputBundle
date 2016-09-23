@@ -32,7 +32,7 @@ $(function(){
             initialPreviewConfig: files.map(function(file){
                 return { key: file.id };
             }),
-            maxFileSize: 5000,
+            maxFileSize: 0,
             initialPreviewCount: true,
             initialCaption: "Files(s)",
             browseIcon : '<i class="icon-browse"></i>',
