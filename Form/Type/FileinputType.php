@@ -108,7 +108,8 @@ class FileinputType extends AbstractType {
             'data_class' => null,
             'multiple' => false,
             'accept' => '',
-            'max_size' => 100000
+            'max_size' => 100000,
+            'error_bubbling' => false,
         ));
     }
 
