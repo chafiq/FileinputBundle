@@ -25,14 +25,17 @@ class EMCFileinputExtension extends Extension {
         $loader->load('services.yml');
 
         $container->setParameter('emc_fileinput.file_class', $config['file_class']);
-
-        foreach ($config['providers'] as $name => $config) {
-            switch ($name) {
-                case 'vimeo':
-                    foreach($config as $key => $value) {
-                        $container->setParameter('emc_fileinput.providers.vimeo.' . $key, $value);
-                    }
-                    break;
+        
+        if (isset($config['providers'])) {
+            foreach ($config['providers'] as $name => $config) {
+                switch ($name) {
+                    case 'vimeo':
+                        $loader->load('vimeo.yml');
+                        foreach($config as $key => $value) {
+                            $container->setParameter('emc_fileinput.providers.vimeo.' . $key, $value);
+                        }
+                        break;
+                }
             }
         }
     }
