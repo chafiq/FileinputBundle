@@ -1,9 +1,9 @@
-$(function(){
-    $('input[type=file].fileinput').each(function(item){
+$(function () {
+    $('input[type=file].fileinput').each(function (item) {
         var that = this;
         var deletedFiles = document.getElementById(that.getAttribute('_delete'));
-    
-        var removeImage = function(id, thumbnail) {
+
+        var removeImage = function (id, thumbnail) {
             var deletedFileIds = deletedFiles.value.length > 0 ? deletedFiles.value.split(',') : [];
             deletedFileIds.push(id);
             deletedFiles.value = deletedFileIds.join(',');
@@ -11,36 +11,52 @@ $(function(){
             $(thumbnail).remove();
             return false;
         };
-        
-        var bindRemoveButton = function(button) {
+
+        var bindRemoveButton = function (button) {
             $(button)
-                .off()
-                .prop('disabled', false)
-                .removeClass('disabled')
-                .on('click', function(event){
-                    event.stopPropagation();
-                    event.preventDefault();
-                    return removeImage($(button).data('key'), button.parentNode.parentNode.parentNode.parentNode);
-                });
+                    .off()
+                    .prop('disabled', false)
+                    .removeClass('disabled')
+                    .on('click', function (event) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        return removeImage(button.getAttribute('data-key'), button.parentNode.parentNode.parentNode.parentNode);
+                    });
         };
-        
+
+        var layoutTemplates = {};
+        var legend = this.getAttribute('_name');
+        if (legend && legend.length > 0) {
+            legend = legend + (this.multiple ? '[{dataKey}]' : '');
+            layoutTemplates.footer = '<div class="file-thumbnail-footer">\n' +
+                    '<div class="input-group"><input type="text" name="' + legend + '" placeholder="Name" class="form-control">{actions}</div>\n' +
+                    '</div>';
+
+            layoutTemplates.actions = '<div class="input-group-btn">{delete} {zoom} {drag}</div>';
+            layoutTemplates.actionDelete = '<button type="button" class="kv-file-remove btn btn-default" title="{removeTitle}"{dataKey}>{removeIcon}</button>\n';
+        }
+
+
         var files = JSON.parse(this.getAttribute('data-files'));
-        $(this).fileinput({
-            initialPreview: files.map(function(file){
+        var fileinput = $(this).fileinput({
+            initialPreview: files.map(function (file) {
                 return '<img src="' + file.path + '" class="file-preview-image"/>';
             }),
-            initialPreviewConfig: files.map(function(file){
-                return { key: file.id };
+            initialPreviewConfig: files.map(function (file) {
+                return {key: file.id};
             }),
+            removeClass: 'btn btn-default',
             maxFileSize: 0,
             initialPreviewCount: true,
             initialCaption: "Files(s)",
-            browseIcon : '<i class="icon-browse"></i>',
-            removeIcon : '<i class="icon-close"></i>',
+            browseIcon: '<i class="icon-browse"></i>',
+            removeIcon: '<i class="icon-close"></i>',
             showUpload: false,
+            showPreview: true,
             showRemove: this.multiple,
             validateInitialCount: true,
             overwriteInitial: !this.multiple,
+            layoutTemplates: layoutTemplates,
             previewFileIconSettings: {
                 doc: '<i class="fa fa-file-word-o text-primary"></i>',
                 xls: '<i class="fa fa-file-excel-o text-success"></i>',
@@ -53,41 +69,82 @@ $(function(){
                 mov: '<i class="fa fa-file-movie-o text-warning"></i>',
                 mp3: '<i class="fa fa-file-audio-o text-warning"></i>',
             },
-            previewFileExtSettings:{
-                doc: function(ext) { return ext.match(/(doc|docx)$/i); },
-                xls: function(ext) { return ext.match(/(xls|xlsx)$/i); },
-                ppt: function(ext) { return ext.match(/(ppt|pptx)$/i); },
-                jpg: function(ext) { return ext.match(/(jp?g|png|gif|bmp)$/i); },
-                zip: function(ext) { return ext.match(/(zip|rar|tar|gzip|gz|7z)$/i); },
-                htm: function(ext) { return ext.match(/(php|js|css|htm|html)$/i); },
-                txt: function(ext) { return ext.match(/(txt|ini|md)$/i); },
-                mov: function(ext) { return ext.match(/(avi|mpg|mkv|mov|mp4|3gp|webm|wmv)$/i); },
-                mp3: function(ext) { return ext.match(/(mp3|wav)$/i); }
+            previewFileExtSettings: {
+                doc: function (ext) {
+                    return ext.match(/(doc|docx)$/i);
+                },
+                xls: function (ext) {
+                    return ext.match(/(xls|xlsx)$/i);
+                },
+                ppt: function (ext) {
+                    return ext.match(/(ppt|pptx)$/i);
+                },
+                jpg: function (ext) {
+                    return ext.match(/(jp?g|png|gif|bmp)$/i);
+                },
+                zip: function (ext) {
+                    return ext.match(/(zip|rar|tar|gzip|gz|7z)$/i);
+                },
+                htm: function (ext) {
+                    return ext.match(/(php|js|css|htm|html)$/i);
+                },
+                txt: function (ext) {
+                    return ext.match(/(txt|ini|md)$/i);
+                },
+                mov: function (ext) {
+                    return ext.match(/(avi|mpg|mkv|mov|mp4|3gp|webm|wmv)$/i);
+                },
+                mp3: function (ext) {
+                    return ext.match(/(mp3|wav)$/i);
+                }
             }
         })
-        .on('fileimageloaded', function(event){
-            var deletedFiles = document.getElementById(that.getAttribute('_delete'));
-            var deletedFileIds = deletedFiles.value.length > 0 ? deletedFiles.value.split(',') : [];
 
-            $fileinput
-                .find('.kv-file-remove')
-                    .each(function(item) {
-                        if (deletedFileIds.indexOf($(this).data('key').toString()) > -1) {
-                            $(this.parentNode.parentNode.parentNode.parentNode).remove();
-                        } else {
-                            bindRemoveButton(this);
-                        }
-                    });
-            
-        });
+                .on('fileimageloaded', function (event) {
+                    var deletedFiles = document.getElementById(that.getAttribute('_delete'));
+                    var deletedFileIds = deletedFiles.value.length > 0 ? deletedFiles.value.split(',') : [];
+
+                    $fileinput
+                            .find('.kv-file-remove')
+                            .each(function (item) {
+                                var file = this.parentNode.parentNode.parentNode.parentNode;
+                                if (deletedFileIds.indexOf(this.getAttribute('data-key').toString()) > -1) {
+                                    $(file).remove();
+                                } else {
+                                    bindRemoveButton(this);
+                                }
+                            });
+
+                })
+                .on('fileloaded', function (event, file, previewId, index, reader) {
+                    if (that.multiple && legend) {
+                        var preview = document.getElementById(previewId);
+                        var name = preview.querySelector('input[name="' + legend + '"]');
+                        name.setAttribute('name', legend.replace('{dataKey}', file.name));
+                    }
+                })
+                .on('fileimagesloaded', function (event) {
+                    $fileinput
+                            .find('.kv-file-remove')
+                            .each(function (item) {
+                                var preview = this.parentNode.parentNode.parentNode.parentNode;
+                                var name = preview.querySelector('input[name="' + legend + '"]');
+                                if (name !== null) {
+                                    if (typeof(files[item]) === 'object' && files[item].name !== null) {
+                                        name.value = files[item].name;
+                                    }
+                                    if (that.multiple && legend) {
+                                        name.setAttribute('name', legend.replace('{dataKey}', this.getAttribute('data-key')));
+                                    }
+                                }
+                                bindRemoveButton(this);
+                            });
+                });
 
         var $fileinput = $(this.parentNode.parentNode.parentNode.parentNode);
-        
-        $fileinput
-            .find('.kv-file-remove')
-                .each(function(item) {bindRemoveButton(this);});
-            
-        if (!this.multiple){
+        $(fileinput).trigger('fileimagesloaded');
+
+        if (!this.multiple) {
             $(this.parentNode.parentNode.parentNode.parentNode)
                     .addClass("file-input-small");
         }

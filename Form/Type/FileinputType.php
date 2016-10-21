@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager;
 use EMC\FileinputBundle\Form\DataTransformer\FileDataTransformer;
 use EMC\FileinputBundle\Form\DataTransformer\MultipleFileDataTransformer;
@@ -66,18 +66,23 @@ class FileinputType extends AbstractType
             'required' => false
         ));
         
+        if ($options['with_name']) {
+            $builder->add('_name', 'hidden');
+        }
+        
         $modelDataTransformerClass = $options['multiple'] ? MultipleFileDataTransformer::class : FileDataTransformer::class;
         $builder->addModelTransformer(new $modelDataTransformerClass($this->uploadableManager, $this->fileClass));
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
-    {
-        parent::setDefaultOptions($resolver);
+    public function configureOptions(OptionsResolver $resolver) {
+        parent::configureOptions($resolver);
         $resolver->setDefaults(array(
             'data_class' => null,
             'multiple'  => false,
-            'accept' => implode(',', array())
+            'accept' => implode(',', array()),
+            'with_name' => false
         ));
+        $resolver->setAllowedTypes('with_name', 'boolean');
     }
 
     public function getName()

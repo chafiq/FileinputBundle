@@ -71,6 +71,11 @@ abstract class File implements FileInterface
     protected $id;
     
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    protected $name;
+    
+    /**
      * @ORM\Column(name="path", type="string")
      * @Gedmo\UploadableFilePath
      * @var string
@@ -150,6 +155,29 @@ abstract class File implements FileInterface
     public function getId()
     {
         return $this->id;
+    }
+    
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return File
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string 
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
@@ -261,6 +289,7 @@ abstract class File implements FileInterface
     public function getMetadata() {
         return array(
             'id'  => $this->getId(),
+            'name' => $this->getName(),
             'path' => $this->getUrl(),
             'mimeType' => $this->getMimeType(),
             'size' => $this->getHumanReadableSize(),

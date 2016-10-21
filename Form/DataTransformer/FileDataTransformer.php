@@ -40,12 +40,18 @@ class FileDataTransformer implements DataTransformerInterface
             if ($file instanceof FileInterface && $file->getId() === (int) $data['_delete']) {
                 return null;
             }
+            if (isset($data['_name'])) {
+                $file->setName($data['_name']);
+            }
             return $file;
         }
         
         if ($data['path'] instanceof UploadedFile) {
             $file = new $this->fileClass;
             $file->setPath($data['path']);
+            if (isset($data['_name'])) {
+                $file->setName($data['_name']);
+            }
             $this->uploadableManager->markEntityToUpload($file, $file->getPath());
 
             return $file;

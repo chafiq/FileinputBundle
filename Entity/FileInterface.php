@@ -10,7 +10,23 @@ interface FileInterface {
      * @return integer
      */
     public function getId();
+    
+    /**
+     * Set name
+     *
+     * @param string $name
+     *
+     * @return File
+     */
+    public function setName($name);
 
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName();
+    
     /**
      * Set path
      *
