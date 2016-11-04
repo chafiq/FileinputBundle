@@ -7,7 +7,6 @@ $(function () {
 
 
 function handleFileinput(input) {
-
     var maxFileSize = input.hasAttribute('data-max-file-size') ? input.getAttribute('data-max-file-size') : 100000;
 
     var deletedFiles = document.getElementById(input.getAttribute('_delete'));
@@ -23,13 +22,13 @@ function handleFileinput(input) {
 
     var bindRemoveButton = function (button) {
         var clone = button.cloneNode(true);
-        button = button.parentNode.replaceChild(clone, button);
-        button.disabled = false;
-        button.className = button.className.replace(/disabled/, '');
-        button.addEventListener('click', function (event) {
+        button.parentNode.replaceChild(clone, button);
+        clone.disabled = false;
+        clone.className = clone.className.replace(/disabled/, '');
+        clone.addEventListener('click', function (event) {
             event.stopPropagation();
             event.preventDefault();
-            return removeImage(button.getAttribute('data-key'), button.parentNode.parentNode.parentNode.parentNode);
+            return removeImage(this.getAttribute('data-key'), this.parentNode.parentNode.parentNode.parentNode);
         });
     };
 
@@ -45,7 +44,9 @@ function handleFileinput(input) {
         maxFileSize: maxFileSize,
         initialPreviewCount: true,
         browseIcon: '<i class="icon-browse"></i>',
-        removeIcon: '<i class="icon-close"></i>',
+        fileActionSettings: {
+            removeIcon: '<i class="icon-remove"></i>',
+        },
         showUpload: false,
         showRemove: input.multiple,
         validateInitialCount: true,
