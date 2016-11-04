@@ -35,6 +35,7 @@ function handleFileinput(input) {
 
     var files = JSON.parse(input.getAttribute('data-files'));
     $(input).fileinput({
+        language: input.hasAttribute('data-locale') ? input.getAttribute('data-locale') : 'en',
         initialPreview: files.map(function (file) {
             return '<img src="' + file.path + '" class="file-preview-image"/>';
         }),
@@ -43,7 +44,6 @@ function handleFileinput(input) {
         }),
         maxFileSize: maxFileSize,
         initialPreviewCount: true,
-        initialCaption: "Files(s)",
         browseIcon: '<i class="icon-browse"></i>',
         removeIcon: '<i class="icon-close"></i>',
         showUpload: false,
