@@ -255,15 +255,15 @@ abstract class File implements FileInterface
     {
         return $this->size;
     }
-    
+
     public function getExtension() {
         if (strlen($this->path) === 0){
             return null;
         }
-        if (($extension = strstr($this->path, '.')) === FALSE) {
+        if (($pos = strrpos($this->path, '.')) === FALSE || $pos === 0) {
             throw new \UnexpectedValueException(sprintf('File path "%s" is not valid !.', $this->path));
         }
-        return $extension;
+        return substr($this->path, $pos + 1);
     }
     
     public function getHumanReadableSize($dec = 2) {
