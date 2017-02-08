@@ -52,15 +52,6 @@ class VimeoDriver implements DriverInterface {
 		$this->configCacheDir = $configCacheDir;
 	}
 
-	private function file_force_contents($dir, $contents){
-		$parts = explode('/', $dir);
-		$file = array_pop($parts);
-		$dir = '';
-		foreach($parts as $part)
-			if(!is_dir($dir .= "/$part")) mkdir($dir);
-		file_put_contents("$dir/$file", $contents);
-	}
-
 	public function upload($pathname, array $settings) {
 		$video = $this->vimeo->upload($pathname, false);
 
@@ -105,8 +96,8 @@ class VimeoDriver implements DriverInterface {
 	}
 
 	public function getThumbnail($pathname) {
-		$path = sprintf('%s/../web/%s%s', $this->kernelRootDir, $this->imageCacheDir, $pathname);
-		$url = sprintf('/%s%s', $this->imageCacheDir, $pathname);
+		$path = sprintf('%s/../web%s%s', $this->kernelRootDir, $this->imageCacheDir, $pathname);
+		$url = sprintf('%s%s', $this->imageCacheDir, $pathname);
 
 		if(file_exists($path)){
 			return $url;
@@ -114,12 +105,9 @@ class VimeoDriver implements DriverInterface {
 
 		$data = $this->get($pathname);
 
-		if($data){
+		if ($data){
 			$link = $data['pictures']['sizes'][3]['link'];
-
-			if(!copy($link, $path)){
-				return $link;
-			}
+            copy($link, $path);
 			return $url;
 		}
 
