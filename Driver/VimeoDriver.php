@@ -30,20 +30,35 @@ class VimeoDriver implements DriverInterface {
 	/**
 	 * @var string
 	 */
-	private $cacheDir;
+	private $imageCacheDir;
+
+	/**
+	 * @var string
+	 */
+	private $configCacheDir;
 
 	/**
 	 * @var array
 	 */
 	static private $cache = array();
 
-	function __construct($clientId, $clientSecret, $accessToken, array $settings, array $whitelist, $kernelRootDir, $cacheDir) {
+	function __construct($clientId, $clientSecret, $accessToken, array $settings, array $whitelist, $kernelRootDir, $imageCacheDir, $configCacheDir) {
 		$this->vimeo = new Vimeo($clientId, $clientSecret);
 		$this->vimeo->setToken($accessToken);
 		$this->settings = $settings;
 		$this->whitelist = $whitelist;
 		$this->kernelRootDir = $kernelRootDir;
-		$this->cacheDir = $cacheDir;
+		$this->imageCacheDir = $imageCacheDir;
+		$this->configCacheDir = $configCacheDir;
+	}
+
+	private function file_force_contents($dir, $contents){
+		$parts = explode('/', $dir);
+		$file = array_pop($parts);
+		$dir = '';
+		foreach($parts as $part)
+			if(!is_dir($dir .= "/$part")) mkdir($dir);
+		file_put_contents("$dir/$file", $contents);
 	}
 
 	public function upload($pathname, array $settings) {
@@ -63,15 +78,21 @@ class VimeoDriver implements DriverInterface {
 	}
 
 	public function get($video) {
+		$path = sprintf('%s/%s%s.json', $this->kernelRootDir, $this->configCacheDir, $video);
 
-		if (!isset(self::$cache[$video])) {
-			$data = $this->vimeo->request($video);
-			if ($data['status'] !== 200) {
-				return null;
-			}
-			self::$cache[$video] = $data['body'];
+		if(file_exists($path)){
+			return json_decode(file_get_contents($path), true);
 		}
-		return self::$cache[$video];
+
+		$data = $this->vimeo->request($video);
+
+		if ($data['status'] !== 200) {
+			return null;
+		}
+
+		$body = $data['body'];
+
+		return $body;
 	}
 
 	public function delete($video) {
@@ -84,8 +105,8 @@ class VimeoDriver implements DriverInterface {
 	}
 
 	public function getThumbnail($pathname) {
-		$path = sprintf('%s/../web%s%s', $this->kernelRootDir, $this->cacheDir, $pathname);
-		$url = $this->cacheDir.$pathname;
+		$path = sprintf('%s/../web/%s%s', $this->kernelRootDir, $this->imageCacheDir, $pathname);
+		$url = sprintf('/%s%s', $this->imageCacheDir, $pathname);
 
 		if(file_exists($path)){
 			return $url;
