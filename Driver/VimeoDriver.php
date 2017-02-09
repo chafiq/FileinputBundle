@@ -37,11 +37,6 @@ class VimeoDriver implements DriverInterface {
 	 */
 	private $configCacheDir;
 
-	/**
-	 * @var array
-	 */
-	static private $cache = array();
-
 	function __construct($clientId, $clientSecret, $accessToken, array $settings, array $whitelist, $kernelRootDir, $imageCacheDir, $configCacheDir) {
 		$this->vimeo = new Vimeo($clientId, $clientSecret);
 		$this->vimeo->setToken($accessToken);
@@ -69,19 +64,26 @@ class VimeoDriver implements DriverInterface {
 	}
 
 	public function get($video) {
-		$path = sprintf('%s/%s%s.json', $this->kernelRootDir, $this->configCacheDir, $video);
+		$path = sprintf('%s%s.json', $this->configCacheDir, $video);
 
-		if(file_exists($path)){
+		if (file_exists($path)){
 			return json_decode(file_get_contents($path), true);
 		}
 
 		$data = $this->vimeo->request($video);
 
+
 		if ($data['status'] !== 200) {
 			return null;
 		}
 
+        if (!is_dir($_path=dirname($path))) {
+            mkdir($_path, 0755, true);
+        }
+
 		$body = $data['body'];
+
+        file_put_contents($path, json_encode($body));
 
 		return $body;
 	}
@@ -99,7 +101,7 @@ class VimeoDriver implements DriverInterface {
 		$path = sprintf('%s/../web%s%s', $this->kernelRootDir, $this->imageCacheDir, $pathname);
 		$url = sprintf('%s%s', $this->imageCacheDir, $pathname);
 
-		if(file_exists($path)){
+		if (file_exists($path)){
 			return $url;
 		}
 
@@ -107,6 +109,11 @@ class VimeoDriver implements DriverInterface {
 
 		if ($data){
 			$link = $data['pictures']['sizes'][3]['link'];
+
+            if (!is_dir($_path=dirname($path))) {
+                mkdir($_path, 0755, true);
+            }
+
             copy($link, $path);
 			return $url;
 		}
