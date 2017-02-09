@@ -72,16 +72,19 @@ class VimeoDriver implements DriverInterface {
 
 		$data = $this->vimeo->request($video);
 
-
 		if ($data['status'] !== 200) {
 			return null;
+		}
+
+		$body = $data['body'];
+
+		if (!isset($body['pictures']['sizes'][3]['link'])) {
+			return $body;
 		}
 
         if (!is_dir($_path=dirname($path))) {
             mkdir($_path, 0755, true);
         }
-
-		$body = $data['body'];
 
         file_put_contents($path, json_encode($body));
 
