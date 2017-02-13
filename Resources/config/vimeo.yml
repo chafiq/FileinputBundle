@@ -23,3 +23,6 @@ services:
             - %emc_fileinput.providers.vimeo.access_token%
             - %emc_fileinput.providers.vimeo.settings%
             - %emc_fileinput.providers.vimeo.whitelist%
+            - %kernel.root_dir%
+            - '/media/cache/vimeo'
+            - '%kernel.cache_dir%/vimeo'
