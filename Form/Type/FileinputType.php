@@ -87,6 +87,10 @@ class FileinputType extends AbstractType {
             $form = $event->getForm();
             
             $dataClass = $form->getParent()->getConfig()->getDataClass();
+            if ($dataClass === null) {
+            	return;
+            }
+
             $property = $form->getName();
             
             $reflectionProperty = new \ReflectionProperty($dataClass, $property);
