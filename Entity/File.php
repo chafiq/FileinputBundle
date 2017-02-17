@@ -43,6 +43,18 @@ abstract class File implements FileInterface {
      */
     protected $size;
 
+	/**
+	 * @ORM\Column(type="decimal", nullable=true)
+	 * @var integer
+	 */
+	protected $height;
+
+	/**
+	 * @ORM\Column(type="decimal", nullable=true)
+	 * @var integer
+	 */
+	protected $width;
+
     /**
      * @ORM\Column(type="string", nullable=true)
      * @var string
@@ -209,4 +221,34 @@ abstract class File implements FileInterface {
         $this->_driver = $_driver;
         return $this;
     }
+
+	/**
+	 * @return int
+	 */
+	public function getHeight()
+	{
+		return $this->height;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getWidth()
+	{
+		return $this->width;
+	}
+
+	/**
+	 * @ORM\PrePersist
+	 */
+	public function onPrePersist(){
+		try {
+			if(preg_match('/image/', $this->isImage()) === 1){
+				$info = getimagesize($this->getPath());
+				list($this->width, $this->height) = $info;
+			}
+		} catch (\Exception $exception){}
+	}
+
+
 }
