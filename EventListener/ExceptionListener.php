@@ -4,41 +4,39 @@ namespace EMC\FileinputBundle\EventListener;
 
 use Doctrine\ORM\EntityManager;
 use Liip\ImagineBundle\Imagine\Filter\FilterConfiguration;
-use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ExceptionListener
 {
+
+	/**
+	 * @var EntityManager
+	 */
+	protected $entityManager;
+
 	/**
 	 * @var FilterConfiguration
 	 */
 	protected $filterConfiguration;
 
 	/**
-	 * @var EntityManager
+	 * @var string
 	 */
-	protected $em;
+	protected $fileClass;
 
 	/**
+	 * ExceptionListener constructor.
+	 * @param EntityManager $entityManager
 	 * @param FilterConfiguration $filterConfiguration
+	 * @param string $fileClass
 	 */
-	public function setFilterConfiguration(FilterConfiguration $filterConfiguration)
+	public function __construct(EntityManager $entityManager, FilterConfiguration $filterConfiguration, $fileClass)
 	{
+		$this->entityManager = $entityManager;
 		$this->filterConfiguration = $filterConfiguration;
-	}
-
-	/**
-	 * @param EntityManager $em
-	 * @return ExceptionListener
-	 */
-	public function setEm(EntityManager $em)
-	{
-		$this->em = $em;
-		return $this;
+		$this->fileClass = $fileClass;
 	}
 
 	public function onKernelException(GetResponseForExceptionEvent $event)
@@ -48,31 +46,32 @@ class ExceptionListener
 
 
 		if ($exception instanceof NotFoundHttpException) {
+			try {
+				$url = null;
+				$request = $event->getRequest();
+				if ($request->get('_route') === 'liip_imagine_filter') {
+					$filter = $this->filterConfiguration->get($request->get('filter'));
+					$size = $filter['filters']['thumbnail']['size'];
 
-			$request = $event->getRequest();
-			if ($request->get('_route') === 'liip_imagine_filter'){
-				$filter = $this->filterConfiguration->get($request->get('filter'));
-				$size = $filter['filters']['thumbnail']['size'];
+					$url = $this->getFakeImageUrl($request->getScheme(), $size[0], $size[1]);
 
-				$url = $this->fakeImageUrl($request->getScheme(), $size[0], $size[1]);
+				} elseif (preg_match('/\/uploads\/.*\.(jpg|png|gif|ico|jpeg)/i', $path = $request->getRequestUri()) === 1) {
+					$repository = $this->entityManager->getRepository($this->fileClass);
+					$image = $repository->findOneByPath('.' . $path);
 
-			}
-			elseif (preg_match('/\/uploads\/.*\.(jpg|png|gif|ico|jpeg)/i',$path = $request->getRequestUri()) === 1){
-				$repository = $this->em->getRepository('AppBundle:File');
-				$image = $repository->findOneByPath('.'.$path);
+					$width = $image->getWidth();
+					$height = $image->getHeight();
 
-				$width = $image->getWidth();
-				$height = $image->getHeight();
-
-				if($width > 0 && $height > 0){
-					$url = $this->fakeImageUrl($request->getScheme(), $width, $height);
+					if ($width > 0 && $height > 0) {
+						$url = $this->getFakeImageUrl($request->getScheme(), $width, $height);
+					}
 				}
-			}
 
-			if(isset($url)){
-				$response = new RedirectResponse($url);
-				$event->setResponse($response);
-			}
+				if ($url !== null) {
+					$response = new RedirectResponse($url);
+					$event->setResponse($response);
+				}
+			} catch(\Exception $exception) {}
 		}
 	}
 
@@ -83,7 +82,7 @@ class ExceptionListener
 	 * @param string $text
 	 * @return string
 	 */
-	private function fakeImageUrl($scheme = 'http', $width, $height, $text = ''){
+	private function getFakeImageUrl($scheme, $width, $height, $text = ''){
 		return sprintf('%s://fakeimg.pl/%sx%s/?text=%s', $scheme, $width, $height, $text);
 	}
 

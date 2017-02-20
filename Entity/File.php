@@ -4,6 +4,7 @@ namespace EMC\FileinputBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeExtensionGuesser;
 use EMC\FileinputBundle\Driver\DriverInterface;
@@ -165,7 +166,7 @@ abstract class File implements FileInterface {
     }
 
     public function isImage() {
-        return strstr($this->mimeType, '/', true) === 'image';
+        return substr($this->mimeType, 0, 6) === 'image/';
     }
 
     /**
@@ -243,9 +244,10 @@ abstract class File implements FileInterface {
 	 */
 	public function onPrePersist(){
 		try {
-			if(preg_match('/image/', $this->isImage()) === 1){
-				$info = getimagesize($this->getPath());
-				list($this->width, $this->height) = $info;
+			if ($this->path instanceof UploadedFile && substr($this->path->getMimeType(), 0, 6) === 'image/'){
+				if ($info = getimagesize($this->path->getPathname())){
+					list($this->width, $this->height) = $info;
+				}
 			}
 		} catch (\Exception $exception){}
 	}
