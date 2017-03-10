@@ -252,5 +252,23 @@ abstract class File implements FileInterface {
 		} catch (\Exception $exception){}
 	}
 
+	/**
+	 * @param int $width
+	 */
+	public function setWidth($width)
+	{
+		$this->width = $width;
+	}
+
+	/**
+	 * @param int $height
+	 * @return File
+	 */
+	public function setHeight($height)
+	{
+		$this->height = $height;
+		return $this;
+	}
+
 
 }
