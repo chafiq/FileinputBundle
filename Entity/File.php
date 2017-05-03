@@ -5,155 +5,74 @@ namespace EMC\FileinputBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeExtensionGuesser;
+use EMC\FileinputBundle\Driver\DriverInterface;
 
 /**
  * Abstract File Entity
  * @ORM\MappedSuperclass
  * @ORM\HasLifecycleCallbacks
  */
-abstract class File implements FileInterface
-{
-    protected static $extensions = array(
-        'txt' => "text/plain",
-        'csv' => "text/plain",
-        'png' => "image/png",
-        'jpg' => "image/jpeg",
-        'gif' => "image/gif",
-        'bmp' => "image/x-ms-bmp",
-        'svg' => "image/svg+xml",
-        'eps' => "application/postscript",
-        'ai' => "application/postscript",
-        'ps' => "application/postscript",
-        'psd'=> "application/octet-stream",
-        'pdf' => "application/pdf",
-        'zip' => "application/zip",
-        'gz'  => "application/x-gzip",
-        
-        /* Open Office */
-        'odt' => "application/vnd.oasis.opendocument.text",
-        'ods' => "application/vnd.oasis.opendocument.spreadsheet",
-        'odp' => "application/vnd.oasis.opendocument.presentation",
-        
-        /* Microsoft Office */
-        "doc" => "application/msword",
-        "dot" => "application/msword",
-        "docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "dotx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
-        "docm" => "application/vnd.ms-word.document.macroEnabled.12",
-        "dotm" => "application/vnd.ms-word.template.macroEnabled.12",
-        "xls" => "application/vnd.ms-excel",
-        "xlt" => "application/vnd.ms-excel",
-        "xla" => "application/vnd.ms-excel",
-        "xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "xltx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.template",
-        "xlsm" => "application/vnd.ms-excel.sheet.macroEnabled.12",
-        "xltm" => "application/vnd.ms-excel.template.macroEnabled.12",
-        "xlam" => "application/vnd.ms-excel.addin.macroEnabled.12",
-        "xlsb" => "application/vnd.ms-excel.sheet.binary.macroEnabled.12",
-        "ppt" => "application/vnd.ms-powerpoint",
-        "pot" => "application/vnd.ms-powerpoint",
-        "pps" => "application/vnd.ms-powerpoint",
-        "ppa" => "application/vnd.ms-powerpoint",
-        "pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        "potx" => "application/vnd.openxmlformats-officedocument.presentationml.template",
-        "ppsx" => "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
-        "ppam" => "application/vnd.ms-powerpoint.addin.macroEnabled.12",
-        "pptm" => "application/vnd.ms-powerpoint.presentation.macroEnabled.12",
-        "potm" => "application/vnd.ms-powerpoint.presentation.macroEnabled.12",
-        "ppsm" => "application/vnd.ms-powerpoint.slideshow.macroEnabled.12"
-    );
-    
+abstract class File implements FileInterface {
+
     /**
      * @ORM\Id
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     protected $id;
-    
+
     /**
      * @ORM\Column(type="string", nullable=true)
      */
     protected $name;
     
     /**
-     * @ORM\Column(name="path", type="string")
+     * @ORM\Column(type="string", unique=true)
      * @Gedmo\UploadableFilePath
      * @var string
      */
     protected $path;
 
     /**
-     * @ORM\Column(name="mime_type", type="string")
+     * @ORM\Column(type="string")
      * @Gedmo\UploadableFileMimeType
      * @var string
      */
     protected $mimeType;
 
     /**
-     * @ORM\Column(name="size", type="decimal")
+     * @ORM\Column(type="decimal")
      * @Gedmo\UploadableFileSize
      * @var integer
      */
     protected $size;
-    
+
     /**
+     * @ORM\Column(type="string", nullable=true)
      * @var string
      */
-    private $_path;
-    
+    protected $driver;
+
     /**
-     * @var boolean
+     * @var \EMC\FileinputBundle\Driver\DriverInterface
      */
-    private $_safeDelete;
+    private $_driver;
     
     public function __toString() {
         return $this->getUrl();
     }
-    
-    public function __clone(){
+
+    public function __clone() {
         $this->id = null;
     }
-    
-    /**
-     * @ORM\PreFlush()
-     */
-    public function preFlush() {
-        if ($this->_safeDelete) {
-            unlink($this->path);
-        }
-    }
-    
-    /**
-     * @ORM\PostRemove()
-     */
-    public function postRemove() {
-        $this->_safeDelete = true;
-    }
-    
-    /**
-     * @ORM\PreUpdate()
-     * @ORM\PrePersist()
-     */
-    public function preUpdate() {
-        if ( $this->path === null ) {
-            $this->path = $this->_path;
-        }
-    }
-    
-    /**
-     * @ORM\PostLoad()
-     */
-    public function postLoad() {
-        $this->_path = $this->path;
-    }
-    
+
     /**
      * Get id
      *
      * @return integer
      */
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
     
@@ -187,8 +106,7 @@ abstract class File implements FileInterface
      *
      * @return File
      */
-    public function setPath($path)
-    {
+    public function setPath($path) {
         $this->path = $path;
 
         return $this;
@@ -199,8 +117,7 @@ abstract class File implements FileInterface
      *
      * @return string
      */
-    public function getPath()
-    {
+    public function getPath() {
         return $this->path;
     }
 
@@ -211,12 +128,8 @@ abstract class File implements FileInterface
      *
      * @return File
      */
-    public function setMimeType($mimeType)
-    {
-        if (!isset(self::$extensions[$mimeType])) {
-            throw new \UnexpectedValueException('Unkown mime type "' . $mimeType . '"');
-        }
-        
+    public function setMimeType($mimeType) {
+
         $this->mimeType = $mimeType;
 
         return $this;
@@ -227,8 +140,7 @@ abstract class File implements FileInterface
      *
      * @return string
      */
-    public function getMimeType()
-    {
+    public function getMimeType() {
         return $this->mimeType;
     }
 
@@ -239,8 +151,7 @@ abstract class File implements FileInterface
      *
      * @return File
      */
-    public function setSize($size)
-    {
+    public function setSize($size) {
         $this->size = $size;
 
         return $this;
@@ -251,29 +162,35 @@ abstract class File implements FileInterface
      *
      * @return string
      */
-    public function getSize()
-    {
+    public function getSize() {
         return $this->size;
     }
 
+    /**
+     * @return string
+     */
     public function getExtension() {
-        if (strlen($this->path) === 0){
-            return null;
-        }
-        if (($pos = strrpos($this->path, '.')) === FALSE || $pos === 0) {
-            throw new \UnexpectedValueException(sprintf('File path "%s" is not valid !.', $this->path));
-        }
-        return substr($this->path, $pos + 1);
+        $mimeTypeGuesser = new MimeTypeExtensionGuesser;
+        return $mimeTypeGuesser->guess($this->mimeType);
     }
-    
+
     public function getHumanReadableSize($dec = 2) {
-        $sizes   = array('B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+        $sizes = array('B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
         $factor = floor((strlen($this->size) - 1) / 3);
         return sprintf("%.{$dec}f %s", $this->size / pow(1024, $factor), @$sizes[$factor]);
     }
-    
+
     public function isImage() {
         return strstr($this->mimeType, '/', true) === 'image';
+    }
+
+    /**
+     * Get path
+     *
+     * @return string
+     */
+    public function getUrl() {
+        return $this->_driver ? $this->_driver->getUrl($this->path) : substr($this->path, 1);
     }
     
     /**
@@ -281,11 +198,19 @@ abstract class File implements FileInterface
      *
      * @return string
      */
-    public function getUrl()
-    {
-        return substr($this->path, 1);
+    public function getThumbnail() {
+        return $this->_driver ? $this->_driver->getThumbnail($this->path) : null;
     }
     
+    /**
+     * Get path
+     *
+     * @return string
+     */
+    public function render() {
+        return $this->_driver ? $this->_driver->render($this->path) : null;
+    }
+
     public function getMetadata() {
         return array(
             'id'  => $this->getId(),
@@ -296,8 +221,21 @@ abstract class File implements FileInterface
             'extension' => $this->getExtension()
         );
     }
-    
-    public static function getAllowedMimeTypes() {
-        return static::$extensions;
+
+    /**
+     * @return string
+     */
+    function getDriver() {
+        return $this->driver;
+    }
+
+    /**
+     * @param string $driver
+     * @return FileInterface
+     */
+    function setDriver($driver, DriverInterface $_driver=null) {
+        $this->driver = $driver;
+        $this->_driver = $_driver;
+        return $this;
     }
 }

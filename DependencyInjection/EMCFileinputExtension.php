@@ -12,19 +12,32 @@ use Symfony\Component\DependencyInjection\Loader;
  *
  * @link http://symfony.com/doc/current/cookbook/bundles/extension.html
  */
-class EMCFileinputExtension extends Extension
-{
+class EMCFileinputExtension extends Extension {
+
     /**
      * {@inheritdoc}
      */
-    public function load(array $configs, ContainerBuilder $container)
-    {
+    public function load(array $configs, ContainerBuilder $container) {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
-        
+
         $container->setParameter('emc_fileinput.file_class', $config['file_class']);
+        
+        if (isset($config['providers'])) {
+            foreach ($config['providers'] as $name => $config) {
+                switch ($name) {
+                    case 'vimeo':
+                        $loader->load('vimeo.yml');
+                        foreach($config as $key => $value) {
+                            $container->setParameter('emc_fileinput.providers.vimeo.' . $key, $value);
+                        }
+                        break;
+                }
+            }
+        }
     }
+
 }

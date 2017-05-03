@@ -1,10 +1,35 @@
 parameters:
     form.type.fileinput.class: EMC\FileinputBundle\Form\Type\FileinputType
 services:
-    form.type.fileinput:
+    emc.fileinput.form.type:
         class: %form.type.fileinput.class%
         tags:
             - { name: form.type, alias: fileinput }
         calls:
-            - [ setUploadableManager, [@stof_doctrine_extensions.uploadable.manager]]
+            - [ setUploadableManager, [@emc.fileinput.uploadable.manager]]
             - [ setFileClass, [%emc_fileinput.file_class%]]
+
+    emc.fileinput.uploadable.manager:
+        class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager
+        arguments: [@doctrine.orm.entity_manager, @emc.fileinput.uploadable.registry]
+            
+    emc.fileinput.uploadable.registry:
+        class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableRegistry
+        arguments: [[]]
+        calls:
+            - [setContainer, [@service_container]]
+    
+    emc.fileinput.uploadable.listener.default:
+        class: EMC\FileinputBundle\Gedmo\Uploadable\DefaultUploadableListener
+        arguments: [@stof_doctrine_extensions.uploadable.mime_type_guesser]
+        calls:
+            - [setAnnotationReader, [@annotation_reader]]
+            - [setDefaultFileInfoClass, [%stof_doctrine_extensions.uploadable.default_file_info.class%]]
+        tags:
+            - { name: doctrine.event_subscriber }
+        
+    emc.fileinput.uploadable.manager.default:
+        class: %stof_doctrine_extensions.uploadable.manager.class%
+        arguments: [@emc.fileinput.uploadable.listener.default, %stof_doctrine_extensions.uploadable.default_file_info.class%]
+        tags:
+            - { name: emc.fileinput.uploadable, alias: default }

@@ -2,29 +2,12 @@
 
 namespace EMC\FileinputBundle\Form\DataTransformer;
 
-use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Form\Exception\TransformationFailedException;
-use Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager;
 use EMC\FileinputBundle\Entity\FileInterface;
 
-class FileDataTransformer implements DataTransformerInterface
+class FileDataTransformer extends AbstractDataTransformer
 {
-    /**
-     * @var UploadableManager
-     */
-    private $uploadableManager;
-    
-    /**
-     * @var string
-     */
-    private $fileClass;
-    
-    function __construct(UploadableManager $uploadableManager, $fileClass) {
-        $this->uploadableManager = $uploadableManager;
-        $this->fileClass = $fileClass;
-    }
-
     public function transform($file)
     {
         if ($file instanceof FileInterface) {
@@ -52,7 +35,7 @@ class FileDataTransformer implements DataTransformerInterface
             if (isset($data['_name'])) {
                 $file->setName($data['_name']);
             }
-            $this->uploadableManager->markEntityToUpload($file, $file->getPath());
+            $this->markEntityToUpload($file, $data['path']);
 
             return $file;
         }
