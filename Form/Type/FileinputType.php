@@ -6,7 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use EMC\FileinputBundle\Form\DataTransformer\FileDataTransformer;
 use EMC\FileinputBundle\Form\DataTransformer\MultipleFileDataTransformer;
 use EMC\FileinputBundle\Entity\FileInterface;
@@ -77,7 +77,10 @@ class FileinputType extends AbstractType {
         ));
         
         
-        
+        if ($options['legend']) {
+            $builder->add('_name', 'hidden');
+        }
+
         $modelDataTransformerClass = $options['multiple'] ? MultipleFileDataTransformer::class : FileDataTransformer::class;
         $dataTransformer = new $modelDataTransformerClass($this->uploadableManager, $this->fileClass);
         $builder->addModelTransformer($dataTransformer);
@@ -106,14 +109,18 @@ class FileinputType extends AbstractType {
         });
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver) {
-        parent::setDefaultOptions($resolver);
+    public function configureOptions(OptionsResolver $resolver) {
+        parent::configureOptions($resolver);
         $resolver->setDefaults(array(
             'data_class' => null,
             'multiple' => false,
             'accept' => '',
             'max_size' => 100000,
             'error_bubbling' => false,
+            'legend' => false
+        ));
+        $resolver->setAllowedTypes(array(
+            'legend' => 'boolean'
         ));
     }
 

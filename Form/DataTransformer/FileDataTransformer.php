@@ -23,12 +23,18 @@ class FileDataTransformer extends AbstractDataTransformer
             if ($file instanceof FileInterface && $file->getId() === (int) $data['_delete']) {
                 return null;
             }
+            if (isset($data['_name'])) {
+                $file->setName($data['_name']);
+            }
             return $file;
         }
         
         if ($data['path'] instanceof UploadedFile) {
             $file = new $this->fileClass;
             $file->setPath($data['path']);
+            if (isset($data['_name'])) {
+                $file->setName($data['_name']);
+            }
             $this->markEntityToUpload($file, $data['path']);
 
             return $file;

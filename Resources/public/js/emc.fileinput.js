@@ -24,13 +24,25 @@ function handleFileinput(input) {
         var clone = button.cloneNode(true);
         button.parentNode.replaceChild(clone, button);
         clone.disabled = false;
-        clone.className = clone.className.replace(/disabled/, '');
+        clone.classList.remove('disabled');
         clone.addEventListener('click', function (event) {
             event.stopPropagation();
             event.preventDefault();
             return removeImage(this.getAttribute('data-key'), this.parentNode.parentNode.parentNode.parentNode);
         });
     };
+
+    var layoutTemplates = {};
+    var legend = this.getAttribute('_name');
+    if (legend && legend.length > 0) {
+        legend = legend + (this.multiple ? '[{dataKey}]' : '');
+        layoutTemplates.footer = '<div class="file-thumbnail-footer">\n' +
+            '<div class="input-group"><input type="text" name="' + legend + '" placeholder="Name" class="form-control">{actions}</div>\n' +
+            '</div>';
+
+        layoutTemplates.actions = '<div class="input-group-btn">{delete} {zoom} {drag}</div>';
+        layoutTemplates.actionDelete = '<button type="button" class="kv-file-remove btn btn-default" title="{removeTitle}"{dataKey}>{removeIcon}</button>\n';
+    }
 
     var files = JSON.parse(input.getAttribute('data-files'));
     $(input).fileinput({
@@ -51,6 +63,7 @@ function handleFileinput(input) {
         showRemove: input.multiple,
         validateInitialCount: true,
         overwriteInitial: !input.multiple,
+        layoutTemplates: layoutTemplates,
         previewFileIconSettings: {
             doc: '<i class="fa fa-file-word-o text-primary"></i>',
             xls: '<i class="fa fa-file-excel-o text-success"></i>',
@@ -107,6 +120,30 @@ function handleFileinput(input) {
                             }
                         });
 
+            })
+            .on('fileloaded', function (event, file, previewId, index, reader) {
+                if (that.multiple && legend) {
+                    var preview = document.getElementById(previewId);
+                    var name = preview.querySelector('input[name="' + legend + '"]');
+                    name.setAttribute('name', legend.replace('{dataKey}', file.name));
+                }
+            })
+            .on('fileimagesloaded', function (event) {
+                $fileinput
+                    .find('.kv-file-remove')
+                    .each(function (item) {
+                        var preview = this.parentNode.parentNode.parentNode.parentNode;
+                        var name = preview.querySelector('input[name="' + legend + '"]');
+                        if (name !== null) {
+                            if (typeof(files[item]) === 'object' && files[item].name !== null) {
+                                name.value = files[item].name;
+                            }
+                            if (that.multiple && legend) {
+                                name.setAttribute('name', legend.replace('{dataKey}', this.getAttribute('data-key')));
+                            }
+                        }
+                        bindRemoveButton(this);
+                    });
             });
 
     var $fileinput = $(input.parentNode.parentNode.parentNode.parentNode);
