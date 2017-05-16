@@ -35,7 +35,7 @@ function handleFileinput(input) {
     var layoutTemplates = {};
     var legend = input.getAttribute('_name');
     if (legend && legend.length > 0) {
-        legend = legend + (this.multiple ? '[{dataKey}]' : '');
+        legend = legend + (input.multiple ? '[{dataKey}]' : '');
         layoutTemplates.footer = '<div class="file-thumbnail-footer">\n' +
             '<div class="input-group"><input type="text" name="' + legend + '" placeholder="Name" class="form-control">{actions}</div>\n' +
             '</div>';
@@ -122,13 +122,16 @@ function handleFileinput(input) {
 
             })
             .on('fileloaded', function (event, file, previewId, index, reader) {
-                if (that.multiple && legend) {
+                console.log(event, previewId);
+                if (input.multiple && legend) {
                     var preview = document.getElementById(previewId);
+                    console.log(preview);
                     var name = preview.querySelector('input[name="' + legend + '"]');
                     name.setAttribute('name', legend.replace('{dataKey}', file.name));
                 }
             })
             .on('fileimagesloaded', function (event) {
+                console.log(event);
                 $fileinput
                     .find('.kv-file-remove')
                     .each(function (item) {
@@ -138,7 +141,7 @@ function handleFileinput(input) {
                             if (typeof(files[item]) === 'object' && files[item].name !== null) {
                                 name.value = files[item].name;
                             }
-                            if (that.multiple && legend) {
+                            if (input.multiple && legend) {
                                 name.setAttribute('name', legend.replace('{dataKey}', this.getAttribute('data-key')));
                             }
                         }
@@ -148,11 +151,8 @@ function handleFileinput(input) {
 
     var $fileinput = $(input.parentNode.parentNode.parentNode.parentNode);
 
-    $fileinput
-            .find('.kv-file-remove')
-            .each(function (item) {
-                bindRemoveButton(this);
-            });
+    $(input).trigger('fileimagesloaded');
+
     if (!input.multiple) {
         $(input.parentNode.parentNode.parentNode.parentNode)
                 .addClass("file-input-small");

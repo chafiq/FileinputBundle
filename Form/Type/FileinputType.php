@@ -78,7 +78,7 @@ class FileinputType extends AbstractType {
         
         
         if ($options['legend']) {
-            $builder->add('_name', 'hidden');
+            $builder->add('name', 'hidden');
         }
 
         $modelDataTransformerClass = $options['multiple'] ? MultipleFileDataTransformer::class : FileDataTransformer::class;

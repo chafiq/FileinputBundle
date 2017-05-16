@@ -48,12 +48,12 @@ class MultipleFileDataTransformer extends AbstractDataTransformer
             }
         }
 
-        if (isset($data['_name'])) {
+        if (isset($data['name'])) {
             foreach ($collection as $file) {
                 $idx = $file->getPath() instanceof UploadedFile ? $file->getPath()->getClientOriginalName() : $file->getId();
 
-                if (isset($data['_name'][$idx])) {
-                    $file->setName($data['_name'][$idx]);
+                if (isset($data['name'][$idx])) {
+                    $file->setName($data['name'][$idx]);
                 }
             }
         }
