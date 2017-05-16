@@ -33,7 +33,7 @@ function handleFileinput(input) {
     };
 
     var layoutTemplates = {};
-    var legend = this.getAttribute('_name');
+    var legend = input.getAttribute('_name');
     if (legend && legend.length > 0) {
         legend = legend + (this.multiple ? '[{dataKey}]' : '');
         layoutTemplates.footer = '<div class="file-thumbnail-footer">\n' +
