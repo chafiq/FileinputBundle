@@ -6,7 +6,7 @@ use Gedmo\Uploadable\FileInfo\FileInfoInterface;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use EMC\FileinputBundle\Entity\FileInterface;
 
-class VimeoUploadableListener extends DefaultUploadableListener implements UploadableListenerInterface {
+class UploadableListener extends DefaultUploadableListener implements UploadableListenerInterface {
 
     /**
      * @var DriverInterface
@@ -26,7 +26,7 @@ class VimeoUploadableListener extends DefaultUploadableListener implements Uploa
     public function postLoad(LifecycleEventArgs $args) {
         $object = $args->getObject();
         
-        if ($object instanceof FileInterface && $object->getDriver() === 'vimeo') {
+        if ($object instanceof FileInterface && ($object->getDriver() !== 'default' || !empty($object->getDriver()))) {
             $object->setDriver($object->getDriver(), $this->driver);
         }
     }

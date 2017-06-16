@@ -40,6 +40,12 @@ class EMCFileinputExtension extends Extension {
                             $container->setParameter('emc_fileinput.providers.vimeo.' . $key, $value);
                         }
                         break;
+                    case 'calameo':
+                        $loader->load('calameo.yml');
+                        foreach($config as $key => $value) {
+                            $container->setParameter('emc_fileinput.providers.calameo.' . $key, $value);
+                        }
+                        break;
                 }
             }
         }

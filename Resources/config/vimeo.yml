@@ -1,6 +1,6 @@
 services:
     emc.fileinput.uploadable.listener.vimeo:
-        class: EMC\FileinputBundle\Gedmo\Uploadable\VimeoUploadableListener
+        class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableListener
         arguments: [@stof_doctrine_extensions.uploadable.mime_type_guesser]
         calls:
             - [setAnnotationReader, [@annotation_reader]]
