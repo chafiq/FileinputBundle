@@ -110,7 +110,7 @@ class CalameoDriver implements DriverInterface
             'POST',
             self::UPLOAD_URL,
             [
-                'query' => $this->configureQuerySettings($params
+                'query' => $this->configureQuerySettings($params),
                 'multipart' => [
                     [
                         'name'     => 'file',
