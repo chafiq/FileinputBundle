@@ -19,7 +19,7 @@ class Fileinput {
     /**
      * @var string
      */
-    private $title;
+    private $name;
     
     /**
      * @var string
@@ -34,7 +34,7 @@ class Fileinput {
     function __construct($data) {
         $this->driver = isset($data['driver']) ? $data['driver'] : null;
         $this->accept = isset($data['accept']) ? $data['accept'] : null;
-        $this->title = isset($data['title']) ? $data['title'] : null;
+        $this->name = isset($data['name']) ? $data['name'] : null;
         $this->description = isset($data['description']) ? $data['description'] : null;
         $this->settings = isset($data['settings']) ? $data['settings'] : null;
     }
@@ -47,8 +47,8 @@ class Fileinput {
         return $this->accept;
     }
 
-    function getTitle() {
-        return $this->title;
+    function getName() {
+        return $this->name;
     }
 
     function getDescription() {

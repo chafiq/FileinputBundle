@@ -25,15 +25,15 @@ class UploadableListener extends DefaultUploadableListener implements Uploadable
 
     public function postLoad(LifecycleEventArgs $args) {
         $object = $args->getObject();
-        
+
         if ($object instanceof FileInterface && ($object->getDriver() !== 'default' || !empty($object->getDriver()))) {
             $object->setDriver($object->getDriver(), $this->driver);
         }
     }
     
     public function moveFile(FileInfoInterface $fileInfo, $path, $filenameGeneratorClass = false, $overwrite = false, $appendNumber = false, $object) {
-        
         $settings = $this->getSettings($object);
+
         
         $info = parent::moveFile($fileInfo, $path, $filenameGeneratorClass, $overwrite, $appendNumber, $object);
         
@@ -58,20 +58,19 @@ class UploadableListener extends DefaultUploadableListener implements Uploadable
         }
         
         $owner = $this->extraFileInfoObjects[$oid]['owner'];
-        
         /* @var $annotation \EMC\FileinputBundle\Annotation\Fileinput */
         $annotation = $this->extraFileInfoObjects[$oid]['annotation'];
         
         $settings = $annotation->getSettings() ?: array();
 
-        if ($annotation->getTitle() && method_exists($owner, $method = 'get' . ucfirst($annotation->getTitle()))) {
-            $settings['name'] = call_user_method( $method, $owner);
+        if ($annotation->getName() && method_exists($owner, $method = 'get' . ucfirst($annotation->getName()))) {
+            $settings['name'] = call_user_func(array($owner, $method));
         }
         
         if ($annotation->getDescription() && method_exists($owner, $method = 'get' . ucfirst($annotation->getDescription()))) {
-            $settings['description'] = call_user_method( $method, $owner);
+            $settings['description'] = call_user_func(array($owner, $method));
         }
-        
+
         return $settings;
     }
 }
