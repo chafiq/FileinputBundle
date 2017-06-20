@@ -89,24 +89,18 @@ class CalameoDriver implements DriverInterface
      */
     public function upload($pathname, array $settings)
     {
-        $params = array_replace_recursive($this->settings, $settings);
-
-        $params['action'] = 'API.publish';
-        $params['apikey'] = $this->apiKey;
-        $params['subscription_id'] = $this->subscriptionId;
-        // TODO : Définir la categorie le format et la langue...
-        $params['category'] = 'MISC';
-        $params['format'] = 'MISC';
-        $params['dialect'] = 'en';
-        $params['publishing_mode'] = 2;
-        $params['is_published'] = 1;
-        $params['subscribe'] = 1;
-        $params['private_url'] = 1;
-        $params['output'] = 'JSON';
-
-        // Replacing default value by custom ones
-        // Set signature
-        $params = $this->setSignature($params);
+        $defaultParams = [
+            'action' => 'API.publish',
+            'subscription_id' => $this->subscriptionId,
+            'category' => 'MISC',
+            'format' => 'MISC',
+            'dialect' => 'en',
+            'publishing_mode' => 2,
+            'is_published' => 1,
+            'subscribe' => 1,
+            'private_url' => 1,
+        ];
+        $params = array_replace_recursive($this->settings, $defaultParams, $settings);
 
         rename($pathname, $pathname.'.pdf');
         $pathname = $pathname.'.pdf';
@@ -116,7 +110,7 @@ class CalameoDriver implements DriverInterface
             'POST',
             self::UPLOAD_URL,
             [
-                'query'     => $params,
+                'query' => $this->configureQuerySettings($params
                 'multipart' => [
                     [
                         'name'     => 'file',
@@ -128,7 +122,7 @@ class CalameoDriver implements DriverInterface
 
         $data = $this->getCalameoObject($response);
 
-        return $data->content->ID;
+        return $data['content']['ID'];
     }
 
     public function get($filePath)
@@ -142,11 +136,12 @@ class CalameoDriver implements DriverInterface
         //Get file Info from Calameo
         $params['book_id'] = $filePath;
         $params['action'] = 'API.getBookInfos';
-        $params = $this->setSignature(array_replace_recursive($this->settings, $params));
 
-        $data = $this->getCalameoObject($this->client->get('', ['query' => $params]));
+        $data = $this->getCalameoObject($this->client->get('', [
+            'query' => $this->configureQuerySettings(array_replace_recursive($this->settings, $params))
+        ]));
 
-        return $data->content;
+        return $data['content'];
     }
 
     public function delete($pathname)
@@ -155,24 +150,25 @@ class CalameoDriver implements DriverInterface
             'book_id' => $pathname,
             'action'  => 'API.deactivateBook',
         ];
-        $data = $this->getCalameoObject($this->client->get('', ['query' => $this->setSignature($params)]));
-        die(dump($data));
-
-        return ($data->status === 'ok');
+        $data = $this->getCalameoObject($this->client->get('', [
+            'query' => $this->configureQuerySettings($params)
+        ]));
+      
+        return ($data['status'] === 'ok') ;
     }
 
     public function getUrl($pathname)
     {
         $data = $this->get($pathname);
 
-        return $data ? $data->ViewUrl : null;
+        return $data ? $data['ViewUrl'] : null;
     }
 
     public function getThumbnail($pathname)
     {
         $data = $this->get($pathname);
 
-        return $data ? $data->ThumbUrl : null;
+        return $data ? $data['ThumbUrl'] : null;
     }
 
     public function render($pathname)
@@ -185,7 +181,7 @@ class CalameoDriver implements DriverInterface
      *
      * @return array
      */
-    protected function setSignature(array $params)
+    protected function configureQuerySettings(array $params)
     {
         $signature = $this->apiSecret;
         ksort($params);
@@ -201,14 +197,12 @@ class CalameoDriver implements DriverInterface
 
     /**
      * @param ResponseInterface $response
-     *
-     * @return mixed
+     * @return array
      * @throws \Exception
      */
-    protected function getCalameoObject(ResponseInterface $response)
-    {
-        $data = json_decode($response->getBody()->getContents())->response;
-        if (property_exists($data, 'error')) {
+    protected function getCalameoObject(ResponseInterface $response){
+        $data = json_decode($response->getBody()->getContents(), true)['response'];
+        if (array_key_exists('error', $data) && isset($data['error'])) {
             throw new \Exception($data->error->message, $data->error->code);
         }
 
