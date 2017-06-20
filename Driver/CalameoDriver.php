@@ -110,7 +110,7 @@ class CalameoDriver implements DriverInterface
             'POST',
             self::UPLOAD_URL,
             [
-                'query' => $this->configureQuerySettings($params
+                'query' => $this->configureQuerySettings($params),
                 'multipart' => [
                     [
                         'name'     => 'file',
@@ -120,7 +120,7 @@ class CalameoDriver implements DriverInterface
             ]
         );
 
-        $data = $this->getCalameoObject($response);
+        $data = $this->getData($response);
 
         return $data['content']['ID'];
     }
@@ -137,7 +137,7 @@ class CalameoDriver implements DriverInterface
         $params['book_id'] = $filePath;
         $params['action'] = 'API.getBookInfos';
 
-        $data = $this->getCalameoObject($this->client->get('', [
+        $data = $this->getData($this->client->get('', [
             'query' => $this->configureQuerySettings(array_replace_recursive($this->settings, $params))
         ]));
 
@@ -150,7 +150,7 @@ class CalameoDriver implements DriverInterface
             'book_id' => $pathname,
             'action'  => 'API.deactivateBook',
         ];
-        $data = $this->getCalameoObject($this->client->get('', [
+        $data = $this->getData($this->client->get('', [
             'query' => $this->configureQuerySettings($params)
         ]));
       
@@ -200,10 +200,10 @@ class CalameoDriver implements DriverInterface
      * @return array
      * @throws \Exception
      */
-    protected function getCalameoObject(ResponseInterface $response){
+    protected function getData(ResponseInterface $response){
         $data = json_decode($response->getBody()->getContents(), true)['response'];
         if (array_key_exists('error', $data) && isset($data['error'])) {
-            throw new \Exception($data->error->message, $data->error->code);
+            throw new \Exception($data['error']['message'], $data['error']['code']);
         }
 
         return $data;
