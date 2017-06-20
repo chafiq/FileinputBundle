@@ -8,8 +8,6 @@
 
 namespace EMC\FileinputBundle\Driver;
 
-
-
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 
@@ -31,8 +29,8 @@ class CalameoDriver implements DriverInterface
      * @var array
      */
     protected $settings;
-    protected $uploadUrl = 'http://upload.calameo.com/1.0';
-    protected $defaultUrl = 'http://api.calameo.com/1.0';
+    const UPLOAD_URL = 'http://upload.calameo.com/1.0';
+    const DEFAULT_URL = 'http://api.calameo.com/1.0';
     /**
      * @var Client
      */
@@ -72,7 +70,7 @@ class CalameoDriver implements DriverInterface
         $this->configCacheDir = $configCacheDir;
 
         // API Client default URI -- Can be overriden if necessary !
-        $this->client = new Client(['base_uri' => $this->defaultUrl]);
+        $this->client = new Client(['base_uri' => self::DEFAULT_URL]);
     }
 
     /**
@@ -84,6 +82,7 @@ class CalameoDriver implements DriverInterface
     public function upload($pathname, array $settings)
     {
         $params = array_replace_recursive($this->settings, $settings);
+
 
         $params['action'] = 'API.publish';
         $params['apikey'] = $this->apiKey;
@@ -108,7 +107,7 @@ class CalameoDriver implements DriverInterface
         // Publish message
         $response = $this->client->request(
             'POST',
-            'http://upload.calameo.com/1.0',
+            self::UPLOAD_URL,
             [
                 'query' => $params,
                 'multipart' => [
@@ -145,30 +144,33 @@ class CalameoDriver implements DriverInterface
 
     public function delete($pathname)
     {
-        // TODO: Implement delete() method.
+        $params = [
+            'book_id' => $pathname,
+            'action' => 'API.deactivateBook'
+        ];
+        $data = $this->getCalameoObject($this->client->get('', ['query' => $this->setSignature($params)]));
+        die(dump($data));
+
+        return ($data->status === 'ok') ;
     }
 
     public function getUrl($pathname)
     {
         $data = $this->get($pathname);
+
         return $data ? $data->ViewUrl : null;
     }
 
     public function getThumbnail($pathname)
     {
         $data = $this->get($pathname);
-        dump($data);
+
         return $data ? $data->ThumbUrl : null;
     }
 
     public function render($pathname)
     {
         // TODO: Implement render() method.
-    }
-
-    protected function getCalameoIdFromPath()
-    {
-
     }
 
     /**
