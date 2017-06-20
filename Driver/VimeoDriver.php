@@ -129,4 +129,8 @@ class VimeoDriver implements DriverInterface {
 		return $data ? $data['embed']['html'] : null;
 	}
 
+    public function getName()
+    {
+        return 'vimeo';
+    }
 }

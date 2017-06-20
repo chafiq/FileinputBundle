@@ -2,6 +2,7 @@
 
 namespace EMC\FileinputBundle\Gedmo\Uploadable;
 
+use EMC\FileinputBundle\Driver\DriverInterface;
 use Gedmo\Uploadable\FileInfo\FileInfoInterface;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use EMC\FileinputBundle\Entity\FileInterface;
@@ -13,7 +14,7 @@ class UploadableListener extends DefaultUploadableListener implements Uploadable
      */
     private $driver;
     
-    public function setDriver($driver) {
+    public function setDriver(DriverInterface $driver) {
         $this->driver = $driver;
     }
     
@@ -25,8 +26,8 @@ class UploadableListener extends DefaultUploadableListener implements Uploadable
 
     public function postLoad(LifecycleEventArgs $args) {
         $object = $args->getObject();
-
-        if ($object instanceof FileInterface && ($object->getDriver() !== 'default' || !empty($object->getDriver()))) {
+        if ($object instanceof FileInterface && $object->getDriver() === $this->driver->getName()) {
+            /** @var $object FileInterface */
             $object->setDriver($object->getDriver(), $this->driver);
         }
     }

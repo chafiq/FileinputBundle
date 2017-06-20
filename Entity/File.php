@@ -246,7 +246,7 @@ abstract class File implements FileInterface {
      * @param string $driver
      * @return FileInterface
      */
-    function setDriver($driver, DriverInterface $_driver=null) {
+    function setDriver($driver, DriverInterface $_driver = null) {
         $this->driver = $driver;
         $this->_driver = $_driver;
         return $this;
