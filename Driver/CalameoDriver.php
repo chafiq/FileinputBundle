@@ -214,4 +214,9 @@ class CalameoDriver implements DriverInterface
 
         return $data;
     }
+
+    public function getName()
+    {
+        return 'calameo';
+    }
 }
