@@ -18,9 +18,9 @@ services:
     emc.calameo:
         class: EMC\FileinputBundle\Driver\CalameoDriver
         arguments:
-            - %emc_fileinput.providers.calameo.apikey%
-            - %emc_fileinput.providers.calameo.apisecret%
-            - %emc_fileinput.providers.calameo.subscriptionId%
+            - %emc_fileinput.providers.calameo.api_key%
+            - %emc_fileinput.providers.calameo.api_secret%
+            - %emc_fileinput.providers.calameo.subscription_id%
             - %emc_fileinput.providers.calameo.settings%
             - %kernel.root_dir%
             - '/media/cache/calameo'

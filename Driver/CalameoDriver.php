@@ -13,24 +13,29 @@ use Psr\Http\Message\ResponseInterface;
 
 class CalameoDriver implements DriverInterface
 {
+    const UPLOAD_URL = 'http://upload.calameo.com/1.0';
+    const DEFAULT_URL = 'http://api.calameo.com/1.0';
+
     /**
      * @var string
      */
     protected $apiKey;
+
     /**
      * @var string
      */
     private $apiSecret;
+
     /**
      * @var int
      */
     protected $subscriptionId;
+
     /**
      * @var array
      */
     protected $settings;
-    const UPLOAD_URL = 'http://upload.calameo.com/1.0';
-    const DEFAULT_URL = 'http://api.calameo.com/1.0';
+
     /**
      * @var Client
      */
@@ -50,8 +55,10 @@ class CalameoDriver implements DriverInterface
      * @var string
      */
     protected $configCacheDir;
+
     /**
      * CalameoDriver constructor.
+     *
      * @param $apiKey
      * @param $apiSecret
      * @param $settings
@@ -76,13 +83,13 @@ class CalameoDriver implements DriverInterface
     /**
      * @param $pathname
      * @param array $settings
+     *
      * @return mixed
      * @throws \Exception
      */
     public function upload($pathname, array $settings)
     {
         $params = array_replace_recursive($this->settings, $settings);
-
 
         $params['action'] = 'API.publish';
         $params['apikey'] = $this->apiKey;
@@ -101,21 +108,21 @@ class CalameoDriver implements DriverInterface
         // Set signature
         $params = $this->setSignature($params);
 
-        rename($pathname, $pathname . '.pdf');
-        $pathname = $pathname . '.pdf';
+        rename($pathname, $pathname.'.pdf');
+        $pathname = $pathname.'.pdf';
 
         // Publish message
         $response = $this->client->request(
             'POST',
             self::UPLOAD_URL,
             [
-                'query' => $params,
+                'query'     => $params,
                 'multipart' => [
                     [
                         'name'     => 'file',
-                        'contents' => fopen($pathname,'r')
+                        'contents' => fopen($pathname, 'r'),
                     ],
-                ]
+                ],
             ]
         );
 
@@ -128,7 +135,7 @@ class CalameoDriver implements DriverInterface
     {
         $path = sprintf('%s%s.json', $this->configCacheDir, $filePath);
 
-        if (file_exists($path)){
+        if (file_exists($path)) {
             return json_decode(file_get_contents($path), true);
         }
 
@@ -146,12 +153,12 @@ class CalameoDriver implements DriverInterface
     {
         $params = [
             'book_id' => $pathname,
-            'action' => 'API.deactivateBook'
+            'action'  => 'API.deactivateBook',
         ];
         $data = $this->getCalameoObject($this->client->get('', ['query' => $this->setSignature($params)]));
         die(dump($data));
 
-        return ($data->status === 'ok') ;
+        return ($data->status === 'ok');
     }
 
     public function getUrl($pathname)
@@ -175,6 +182,7 @@ class CalameoDriver implements DriverInterface
 
     /**
      * @param array $params
+     *
      * @return array
      */
     protected function setSignature(array $params)
@@ -183,19 +191,22 @@ class CalameoDriver implements DriverInterface
         ksort($params);
 
         foreach ($params as $key => $value) {
-            $signature.=$key.''.$value;
+            $signature .= $key.''.$value;
         }
 
         $params['signature'] = md5($signature);
+
         return $params;
     }
 
     /**
      * @param ResponseInterface $response
+     *
      * @return mixed
      * @throws \Exception
      */
-    protected function getCalameoObject(ResponseInterface $response){
+    protected function getCalameoObject(ResponseInterface $response)
+    {
         $data = json_decode($response->getBody()->getContents())->response;
         if (property_exists($data, 'error')) {
             throw new \Exception($data->error->message, $data->error->code);
@@ -203,5 +214,4 @@ class CalameoDriver implements DriverInterface
 
         return $data;
     }
-
 }
