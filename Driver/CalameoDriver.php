@@ -15,6 +15,7 @@ class CalameoDriver implements DriverInterface
 {
     const UPLOAD_URL = 'http://upload.calameo.com/1.0';
     const DEFAULT_URL = 'http://api.calameo.com/1.0';
+    const DOWNLOAD_URL = 'http://www.calameo.com/download/';
 
     /**
      * @var string
@@ -96,9 +97,11 @@ class CalameoDriver implements DriverInterface
             'format' => 'MISC',
             'dialect' => 'en',
             'publishing_mode' => 2,
+            'private_url' => 1,
             'is_published' => 1,
             'subscribe' => 1,
-            'private_url' => 1,
+            'download' => 2,
+            'print' => 2,
         ];
         $params = array_replace_recursive($this->settings, $defaultParams, $settings);
 
@@ -148,10 +151,10 @@ class CalameoDriver implements DriverInterface
     {
         $params = [
             'book_id' => $pathname,
-            'action'  => 'API.deactivateBook',
+            'action'  => 'API.deleteBook',
         ];
         $data = $this->getData($this->client->get('', [
-            'query' => $this->configureQuerySettings($params)
+            'query' => $this->configureQuerySettings(array_replace_recursive($this->settings, $params))
         ]));
       
         return ($data['status'] === 'ok') ;
@@ -191,7 +194,6 @@ class CalameoDriver implements DriverInterface
         }
 
         $params['signature'] = md5($signature);
-
         return $params;
     }
 
