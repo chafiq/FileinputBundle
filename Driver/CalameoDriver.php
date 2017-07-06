@@ -82,6 +82,9 @@ class CalameoDriver implements DriverInterface
     }
 
     /**
+     * Upload a file on Calameo Server.
+     * See http://help.calameo.com/index.php?title=API:API.publish for more info
+     *
      * @param $pathname
      * @param array $settings
      *
@@ -105,9 +108,19 @@ class CalameoDriver implements DriverInterface
         ];
         $params = array_replace_recursive($this->settings, $defaultParams, $settings);
 
+        return $this->uploadFile($pathname, $params);
+    }
+
+    /**
+     * Upload a file to Calameo servers.
+     * @param $pathname
+     * @param array $params
+     * @return mixed
+     */
+    protected function uploadFile($pathname, array $params)
+    {
         rename($pathname, $pathname.'.pdf');
         $pathname = $pathname.'.pdf';
-
         // Publish message
         $response = $this->client->request(
             'POST',
@@ -126,6 +139,51 @@ class CalameoDriver implements DriverInterface
         $data = $this->getData($response);
 
         return $data['content']['ID'];
+    }
+
+    /**
+     * Updates the file on Calameo server
+     * See http://help.calameo.com/index.php?title=API:API.revise for more info
+     *
+     *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * Does not update file properties.
+     *  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     *
+     * @param $pathname
+     * @param array $settings
+     *
+     * @return bool
+     */
+    public function update($pathname, array $settings = [])
+    {
+        $params = [
+            'action' => 'API.revise',
+            'subscritpion_id' => $this->subscriptionId,
+            'book_id' => $settings['book_id'],
+        ];
+
+        $info = $this->uploadFile($pathname, array_replace_recursive($this->settings, $params));
+        $this->updateFileProperties($settings);
+
+        return $info;
+    }
+
+    /**
+     * Updates file properties on Calameo server.
+     *
+     * See http://help.calameo.com/index.php?title=API:API.updateBook for more info
+     * @param array $settings
+     * @return array
+     */
+    public function updateFileProperties(array $settings)
+    {
+        $defaultParams = ['action' => 'API.updateBook'];
+
+        return $data = $this->getData($this->client->get('', [
+            'query' => $this->configureQuerySettings(
+                array_replace_recursive($this->settings, $defaultParams, $settings)
+            )
+        ]));
     }
 
     public function get($filePath)
@@ -204,12 +262,14 @@ class CalameoDriver implements DriverInterface
      */
     protected function getData(ResponseInterface $response){
         $data = json_decode($response->getBody()->getContents(), true)['response'];
+
         if (array_key_exists('error', $data) && isset($data['error'])) {
             throw new \Exception($data['error']['message'], $data['error']['code']);
         }
 
         return $data;
     }
+
 
     public function getName()
     {
