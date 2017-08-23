@@ -7,42 +7,70 @@ use EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager;
 use EMC\FileinputBundle\Entity\FileInterface;
 use EMC\FileinputBundle\Annotation\Fileinput;
 
-abstract class AbstractDataTransformer implements DataTransformerInterface {
-    
+/**
+ * Class AbstractDataTransformer
+ * @package EMC\FileinputBundle\Form\DataTransformer
+ */
+abstract class AbstractDataTransformer implements DataTransformerInterface
+{
+
     /**
      * @var UploadableManager
      */
     protected $uploadableManager;
-    
+
     /**
      * @var string
      */
     protected $fileClass;
-    
+
     /**
      * @var Fileinput
      */
     protected $annotation;
-    
+
     /**
      * @var object
      */
     protected $owner;
-    
-    function __construct(UploadableManager $uploadableManager, $fileClass) {
+
+    /**
+     * AbstractDataTransformer constructor.
+     *
+     * @param UploadableManager $uploadableManager
+     * @param                   $fileClass
+     */
+    public function __construct(UploadableManager $uploadableManager, $fileClass)
+    {
         $this->uploadableManager = $uploadableManager;
         $this->fileClass = $fileClass;
     }
-    
-    function setAnnotation(Fileinput $annotation=null) {
+
+    /**
+     * @param Fileinput|null $annotation
+     */
+    public function setAnnotation(Fileinput $annotation = null)
+    {
         $this->annotation = $annotation;
     }
 
-    function setOwner($owner=null) {
+    /**
+     * @param null $owner
+     */
+    public function setOwner($owner = null)
+    {
         $this->owner = $owner;
     }
-    
-    protected function markEntityToUpload(FileInterface $file, UploadedFile $uploadedFile) {
-        return $this->uploadableManager->markEntityToUpload($file, $uploadedFile, $this->owner, $this->annotation);
+
+    /**
+     * @param FileInterface $file
+     * @param UploadedFile  $uploadedFile
+     * @param null          $annotation
+     */
+    protected function markEntityToUpload(FileInterface $file, UploadedFile $uploadedFile, $annotation = null)
+    {
+
+        return $this->uploadableManager
+            ->markEntityToUpload($file, $uploadedFile, $this->owner, $annotation ?: $this->annotation);
     }
 }
