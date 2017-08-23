@@ -5,57 +5,99 @@ namespace EMC\FileinputBundle\Annotation;
 /**
  * @Annotation
  */
-class Fileinput {
+class Fileinput
+{
     /**
      * @var string
      */
     private $driver;
-    
+
     /**
      * @var array
      */
     private $accept;
-    
+
     /**
      * @var string
      */
     private $name;
-    
+
     /**
      * @var string
      */
     private $description;
-    
+
     /**
      * @var array
      */
     private $settings;
-    
-    function __construct($data) {
+
+    /**
+     * @var array
+     */
+    private $resample;
+
+    /**
+     * Fileinput constructor.
+     *
+     * @param $data
+     */
+    public function __construct($data)
+    {
         $this->driver = isset($data['driver']) ? $data['driver'] : null;
         $this->accept = isset($data['accept']) ? $data['accept'] : null;
         $this->name = isset($data['name']) ? $data['name'] : null;
         $this->description = isset($data['description']) ? $data['description'] : null;
         $this->settings = isset($data['settings']) ? $data['settings'] : null;
+        $this->resample = isset($data['resample']) ? $data['resample'] : null;
     }
 
-    function getDriver() {
+    /**
+     * @return null|string
+     */
+    public function getDriver()
+    {
         return $this->driver;
     }
-    
-    function getAccept() {
+
+    /**
+     * @return array|null
+     */
+    public function getAccept()
+    {
         return $this->accept;
     }
 
-    function getName() {
+    /**
+     * @return null|string
+     */
+    public function getName()
+    {
         return $this->name;
     }
 
-    function getDescription() {
+    /**
+     * @return null|string
+     */
+    public function getDescription()
+    {
         return $this->description;
     }
-    
-    function getSettings() {
+
+    /**
+     * @return array|null
+     */
+    public function getSettings()
+    {
         return $this->settings;
     }
+
+    /**
+     * @return array|null
+     */
+    public function getResample()
+    {
+        return $this->resample;
+    }
+
 }
