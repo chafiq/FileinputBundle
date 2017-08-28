@@ -91,7 +91,7 @@ class FileinputType extends AbstractType {
         $builder->addEventListener(FormEvents::POST_SET_DATA, function(FormEvent $event) use ($dataTransformer){
             $form = $event->getForm();
 
-            if ($form->getParent() === null) {
+            if ($form->getParent() === null || !$form->getConfig()->getMapped()) {
             	return;
             }
 
