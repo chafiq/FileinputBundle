@@ -11,7 +11,9 @@ services:
 
     emc.fileinput.uploadable.manager:
         class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager
-        arguments: [@doctrine.orm.entity_manager, @emc.fileinput.uploadable.registry]
+        arguments: [@emc.fileinput.uploadable.registry]
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
             
     emc.fileinput.uploadable.registry:
         class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableRegistry

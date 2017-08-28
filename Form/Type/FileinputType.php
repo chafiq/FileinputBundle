@@ -3,6 +3,8 @@
 namespace EMC\FileinputBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -60,11 +62,11 @@ class FileinputType extends AbstractType {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options) {
-        $builder->add('_delete', 'hidden', array(
+        $builder->add('_delete', HiddenType::class, array(
             'required' => false
         ));
 
-        $builder->add('path', 'file', array(
+        $builder->add('path', FileType::class, array(
             'data_class' => null,
             'required' => false,
             'multiple' => $options['multiple'],

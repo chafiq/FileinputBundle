@@ -4,6 +4,7 @@ namespace EMC\FileinputBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeExtensionGuesser;
@@ -78,6 +79,59 @@ abstract class File implements FileInterface {
 
     public function __clone() {
         $this->id = null;
+    }
+
+    public function __sleep()
+    {
+        if ($this->path instanceof UploadedFile) {
+            try {
+                $filename = uniqid('emc_filesess_');
+                $pathname = sprintf('%s/%s', sys_get_temp_dir(), $filename);
+
+                $uploadedFile = $this->path;
+
+                $this->path = array(
+                    'path' => $pathname,
+                    'clientOriginalName' => $uploadedFile->getClientOriginalName(),
+                    'mimeType' => $uploadedFile->getMimeType(),
+                    'size' => $uploadedFile->getSize(),
+                    'error' => $uploadedFile->getError()
+                );
+
+                $uploadedFile->move(sys_get_temp_dir(), $filename);
+            } catch(\Exception $exception) {
+                $this->path = null;
+            }
+        }
+
+        $ref   = new \ReflectionClass(static::class);
+        $props = $ref->getProperties(\ReflectionProperty::IS_PROTECTED);
+
+        $serialize_fields = array();
+
+        foreach ($props as $prop) {
+            $serialize_fields[] = $prop->name;
+        }
+
+        return $serialize_fields;
+    }
+
+    function __wakeup()
+    {
+        if (is_array($this->path)) {
+            try {
+                $this->path = new UploadedFile(
+                    $this->path['path'],
+                    $this->path['clientOriginalName'],
+                    $this->path['mimeType'],
+                    $this->path['size'],
+                    $this->path['error'],
+                    true
+                );
+            } catch(\Exception $exception) {
+                $this->path = null;
+            }
+        }
     }
 
     /**

@@ -2,33 +2,20 @@
 
 namespace EMC\FileinputBundle\Gedmo\Uploadable;
 
-use Doctrine\ORM\EntityManager;
-use EMC\FileinputBundle\Gedmo\Uploadable\UploadableRegistry as GedmoUploadableRegistry;
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use EMC\FileinputBundle\Entity\FileInterface;
 use EMC\FileinputBundle\Annotation\Fileinput;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UploadableManager
 {
 
     /**
-     * @var EntityManager
-     */
-    private $entityManager;
-
-    /**
-     * @var GedmoUploadableRegistry
+     * @var UploadableRegistry
      */
     private $registry;
-
-    /**
-     * UploadableManager constructor.
-     *
-     * @param EntityManager           $entityManager
-     * @param GedmoUploadableRegistry $registry
-     */
-    public function __construct(EntityManager $entityManager, UploadableRegistry $registry)
-    {
-        $this->entityManager = $entityManager;
+    
+    function __construct(UploadableRegistry $registry) {
         $this->registry = $registry;
     }
 
@@ -58,6 +45,15 @@ class UploadableManager
 
         if ($driver !== 'default') {
             $file->setDriver($driver);
+        }
+    }
+
+    public function prePersist(LifecycleEventArgs $event) {
+        if (!($file = $event->getObject()) instanceof FileInterface) {
+            return;
+        }
+        if ($file->getPath() instanceof UploadedFile) {
+            $this->markEntityToUpload($file, $file->getPath());
         }
     }
 }
