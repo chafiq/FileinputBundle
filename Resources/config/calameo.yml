@@ -1,8 +1,9 @@
 services:
     emc.fileinput.uploadable.listener.calameo:
-        class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableListener
+        class: EMC\FileinputBundle\Gedmo\Uploadable\CalameoUploadableListener
         arguments: [@stof_doctrine_extensions.uploadable.mime_type_guesser]
         calls:
+            - [setObjectManager, [@doctrine.orm.entity_manager]]
             - [setAnnotationReader, [@annotation_reader]]
             - [setDefaultFileInfoClass, [%stof_doctrine_extensions.uploadable.default_file_info.class%]]
             - [setDriver, [@emc.calameo]]

@@ -93,6 +93,10 @@ class CalameoDriver implements DriverInterface
      */
     public function upload($pathname, array $settings)
     {
+        if (isset($settings['book_id'])) {
+            return $this->update($pathname, $settings);
+        }
+
         $defaultParams = [
             'action' => 'API.publish',
             'subscription_id' => $this->subscriptionId,
@@ -159,7 +163,7 @@ class CalameoDriver implements DriverInterface
         $params = [
             'action' => 'API.revise',
             'subscritpion_id' => $this->subscriptionId,
-            'book_id' => $settings['book_id'],
+            'book_id' => $settings['book_id']
         ];
 
         $info = $this->uploadFile($pathname, array_replace_recursive($this->settings, $params));

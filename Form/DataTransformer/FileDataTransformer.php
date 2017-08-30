@@ -36,7 +36,7 @@ class FileDataTransformer extends AbstractDataTransformer
 
         // File to Upload
         if ($data['path'] instanceof UploadedFile) {
-            $file = new $this->fileClass;
+            $file = $file ?: new $this->fileClass;
             $file->setPath($data['path']);
 
             if (isset($data['name'])) {

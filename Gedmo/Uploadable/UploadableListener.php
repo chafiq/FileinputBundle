@@ -67,7 +67,6 @@ class UploadableListener extends DefaultUploadableListener implements Uploadable
     ) {
         $settings = $this->getSettings($object);
 
-
         $info = parent::moveFile($fileInfo, $path, $filenameGeneratorClass, $overwrite, $appendNumber, $object);
 
         $info['filePath'] = $this->driver->upload($fileInfo->getTmpName(), $settings);
@@ -102,7 +101,7 @@ class UploadableListener extends DefaultUploadableListener implements Uploadable
      *
      * @return array
      */
-    private function getSettings($object)
+    protected function getSettings($object)
     {
         $oid = spl_object_hash($object);
         if (!isset($this->extraFileInfoObjects[$oid])) {
