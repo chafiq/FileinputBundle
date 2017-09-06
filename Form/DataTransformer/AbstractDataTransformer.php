@@ -69,7 +69,6 @@ abstract class AbstractDataTransformer implements DataTransformerInterface
      */
     protected function markEntityToUpload(FileInterface $file, UploadedFile $uploadedFile, $annotation = null)
     {
-
         return $this->uploadableManager
             ->markEntityToUpload($file, $uploadedFile, $this->owner, $annotation ?: $this->annotation);
     }

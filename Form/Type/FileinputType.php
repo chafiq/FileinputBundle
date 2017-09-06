@@ -80,7 +80,7 @@ class FileinputType extends AbstractType {
         
         
         if ($options['legend']) {
-            $builder->add('name', 'hidden');
+            $builder->add('name', HiddenType::class);
         }
 
         $modelDataTransformerClass = $options['multiple'] ? MultipleFileDataTransformer::class : FileDataTransformer::class;
@@ -90,7 +90,6 @@ class FileinputType extends AbstractType {
         
         $builder->addEventListener(FormEvents::POST_SET_DATA, function(FormEvent $event) use ($dataTransformer){
             $form = $event->getForm();
-
             if ($form->getParent() === null || !$form->getConfig()->getMapped()) {
             	return;
             }
@@ -101,12 +100,12 @@ class FileinputType extends AbstractType {
             }
 
             $property = $form->getName();
-            
+
             $reflectionProperty = new \ReflectionProperty($dataClass, $property);
 
             // Prepare doctrine annotation reader
             $reader = new AnnotationReader();
-            
+
             /* @var $annotation Fileinput */
             if ($annotation = $reader->getPropertyAnnotation($reflectionProperty, Fileinput::class)) {
                 $dataTransformer->setAnnotation($annotation);

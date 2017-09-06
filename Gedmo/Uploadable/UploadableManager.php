@@ -31,7 +31,9 @@ class UploadableManager
      */
     public function markEntityToUpload(FileInterface $file, $fileInfo, $owner = null, Fileinput $annotation = null)
     {
-        if ($annotation && $annotation->getDriver()) {
+        if ($file->getDriver()) {
+            $driver = $file->getDriver();
+        } else if ($annotation && $annotation->getDriver()) {
             $driver = $annotation->getDriver();
         } else {
             $driver = 'default';
@@ -40,10 +42,11 @@ class UploadableManager
         /* @var $uploadableManager \Stof\DoctrineExtensionsBundle\Uploadable\UploadableManager */
         $uploadableManager = $this->registry->get($driver);
         $uploadableManager->markEntityToUpload($file, $fileInfo);
-        $uploadableManager->getUploadableListener()
-            ->addExtraFileInfoObjects($file, $owner, $annotation);
 
         if ($driver !== 'default') {
+            $uploadableManager
+                ->getUploadableListener()
+                    ->addExtraFileInfoObjects($file, $owner, $annotation);
             $file->setDriver($driver);
         }
     }

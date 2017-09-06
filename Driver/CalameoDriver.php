@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nbourdiec
- * Date: 14/06/2017
- * Time: 16:43
- */
 
 namespace EMC\FileinputBundle\Driver;
 
@@ -123,6 +117,7 @@ class CalameoDriver implements DriverInterface
      */
     protected function uploadFile($pathname, array $params)
     {
+
         rename($pathname, $pathname.'.pdf');
         $pathname = $pathname.'.pdf';
         // Publish message
@@ -211,15 +206,19 @@ class CalameoDriver implements DriverInterface
 
     public function delete($pathname)
     {
-        $params = [
-            'book_id' => $pathname,
-            'action'  => 'API.deleteBook',
-        ];
-        $data = $this->getData($this->client->get('', [
-            'query' => $this->configureQuerySettings(array_replace_recursive($this->settings, $params))
-        ]));
-      
-        return ($data['status'] === 'ok') ;
+        try {
+            $params = [
+                'book_id' => $pathname,
+                'action'  => 'API.deleteBook',
+            ];
+            $data = $this->getData($this->client->get('', [
+                'query' => $this->configureQuerySettings(array_replace_recursive($this->settings, $params))
+            ]));
+        } catch (\Exception $exception) {
+            return false;
+        }
+
+        return ($data['status'] === 'ok');
     }
 
     public function getUrl($pathname)

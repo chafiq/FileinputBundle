@@ -2,9 +2,10 @@
 
 namespace EMC\FileinputBundle\Gedmo\Uploadable;
 
+use Doctrine\Common\EventArgs;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\UnitOfWork;
-use EMC\FileinputBundle\Gedmo\Uploadable\UploadableListener;
+use Gedmo\Uploadable\FileInfo\FileInfoInterface;
 
 class CalameoUploadableListener extends UploadableListener implements UploadableListenerInterface {
 
