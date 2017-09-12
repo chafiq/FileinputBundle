@@ -1,6 +1,15 @@
 parameters:
     form.type.fileinput.class: EMC\FileinputBundle\Form\Type\FileinputType
+    file.listener.class: EMC\FileinputBundle\Entity\FileListener
+
 services:
+    emc.fileinput.file.listener:
+        class: %file.listener.class%
+        arguments: [@emc.fileinput.uploadable.manager]
+        tags:
+            - { name: doctrine.event_listener, event: prePersist}
+            - { name: doctrine.event_listener, event: preUpdate}
+
     emc.fileinput.form.type:
         class: %form.type.fileinput.class%
         tags:
