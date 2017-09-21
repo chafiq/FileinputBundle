@@ -79,6 +79,18 @@ abstract class File implements FileInterface {
 
     public function __clone() {
         $this->id = null;
+
+        if ($this->path instanceof UploadedFile) {
+            $this->path = clone $this->path;
+        } elseif(is_string($this->path) && file_exists($this->path)) {
+            $pathname = sprintf('%s/file-clone-%s.%s', sys_get_temp_dir(), uniqid(), $this->getExtension());
+            if (!copy($this->path, $pathname)) {
+                throw new \RuntimeException(sprintf('Unable to copy file from %s to %s', $this->path, $pathname));
+            }
+            $this->path = new UploadedFile($pathname, $pathname, $this->mimeType, $this->size, null, true);
+        } else {
+            $this->path = null;
+        }
     }
 
     public function __sleep()
