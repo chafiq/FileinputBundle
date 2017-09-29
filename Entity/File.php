@@ -3,12 +3,12 @@
 namespace EMC\FileinputBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use EMC\FileinputBundle\Driver\DriverInterface;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeExtensionGuesser;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeExtensionGuesser;
-use EMC\FileinputBundle\Driver\DriverInterface;
 
 /**
  * Abstract File Entity

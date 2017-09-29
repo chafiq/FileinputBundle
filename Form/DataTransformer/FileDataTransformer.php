@@ -2,10 +2,10 @@
 
 namespace EMC\FileinputBundle\Form\DataTransformer;
 
-use EMC\FileinputBundle\Resample\Resampler;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Form\Exception\TransformationFailedException;
 use EMC\FileinputBundle\Entity\FileInterface;
+use EMC\FileinputBundle\Resample\Resampler;
+use Symfony\Component\Form\Exception\TransformationFailedException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileDataTransformer extends AbstractDataTransformer
 {

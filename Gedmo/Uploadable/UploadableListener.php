@@ -2,11 +2,11 @@
 
 namespace EMC\FileinputBundle\Gedmo\Uploadable;
 
+use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use EMC\FileinputBundle\Annotation\Fileinput;
 use EMC\FileinputBundle\Driver\DriverInterface;
-use Gedmo\Uploadable\FileInfo\FileInfoInterface;
-use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use EMC\FileinputBundle\Entity\FileInterface;
+use Gedmo\Uploadable\FileInfo\FileInfoInterface;
 use Gedmo\Uploadable\UploadableListener as BaseUploadableListener;
 
 /**
