@@ -3,8 +3,8 @@
 namespace EMC\FileinputBundle\Gedmo\Uploadable;
 
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
-use EMC\FileinputBundle\Entity\FileInterface;
 use EMC\FileinputBundle\Annotation\Fileinput;
+use EMC\FileinputBundle\Entity\FileInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class UploadableManager

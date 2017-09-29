@@ -2,10 +2,10 @@
 
 namespace EMC\FileinputBundle\Form\DataTransformer;
 
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager;
-use EMC\FileinputBundle\Entity\FileInterface;
 use EMC\FileinputBundle\Annotation\Fileinput;
+use EMC\FileinputBundle\Entity\FileInterface;
+use EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Class AbstractDataTransformer

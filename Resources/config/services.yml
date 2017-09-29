@@ -4,43 +4,43 @@ parameters:
 
 services:
     emc.fileinput.file.listener:
-        class: %file.listener.class%
-        arguments: [@emc.fileinput.uploadable.manager]
+        class: '%file.listener.class%'
+        arguments: ['@emc.fileinput.uploadable.manager']
         tags:
             - { name: doctrine.event_listener, event: prePersist}
             - { name: doctrine.event_listener, event: preUpdate}
 
     emc.fileinput.form.type:
-        class: %form.type.fileinput.class%
+        class: '%form.type.fileinput.class%'
         tags:
             - { name: form.type, alias: fileinput }
         calls:
-            - [ setUploadableManager, [@emc.fileinput.uploadable.manager]]
-            - [ setFileClass, [%emc_fileinput.file_class%]]
+            - [ setUploadableManager, ['@emc.fileinput.uploadable.manager']]
+            - [ setFileClass, ['emc_fileinput.file_class%']]
 
     emc.fileinput.uploadable.manager:
         class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager
-        arguments: [@emc.fileinput.uploadable.registry]
+        arguments: ['@emc.fileinput.uploadable.registry']
         tags:
             - { name: doctrine.event_listener, event: prePersist }
-            
+
     emc.fileinput.uploadable.registry:
         class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableRegistry
         arguments: [[]]
         calls:
-            - [setContainer, [@service_container]]
-    
+            - [setContainer, ['@service_container']]
+
     emc.fileinput.uploadable.listener.default:
         class: EMC\FileinputBundle\Gedmo\Uploadable\DefaultUploadableListener
-        arguments: [@stof_doctrine_extensions.uploadable.mime_type_guesser]
+        arguments: ['@stof_doctrine_extensions.uploadable.mime_type_guesser']
         calls:
-            - [setAnnotationReader, [@annotation_reader]]
-            - [setDefaultFileInfoClass, [%stof_doctrine_extensions.uploadable.default_file_info.class%]]
+            - [setAnnotationReader, ['@annotation_reader']]
+            - [setDefaultFileInfoClass, ['%stof_doctrine_extensions.uploadable.default_file_info.class%']]
         tags:
             - { name: doctrine.event_subscriber }
-        
+
     emc.fileinput.uploadable.manager.default:
-        class: %stof_doctrine_extensions.uploadable.manager.class%
-        arguments: [@emc.fileinput.uploadable.listener.default, %stof_doctrine_extensions.uploadable.default_file_info.class%]
+        class: '%stof_doctrine_extensions.uploadable.manager.class%'
+        arguments: ['@emc.fileinput.uploadable.listener.default', '%stof_doctrine_extensions.uploadable.default_file_info.class%']
         tags:
             - { name: emc.fileinput.uploadable, alias: default }

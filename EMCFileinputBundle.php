@@ -2,9 +2,9 @@
 
 namespace EMC\FileinputBundle;
 
-use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use EMC\FileinputBundle\DependencyInjection\Compiler\UploadableRegistryPass;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class EMCFileinputBundle extends Bundle {
 

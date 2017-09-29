@@ -2,22 +2,22 @@
 
 namespace EMC\FileinputBundle\Form\Type;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use EMC\FileinputBundle\Annotation\Fileinput;
+use EMC\FileinputBundle\Entity\FileInterface;
+use EMC\FileinputBundle\Form\DataTransformer\DataTransformerInterface;
+use EMC\FileinputBundle\Form\DataTransformer\FileDataTransformer;
+use EMC\FileinputBundle\Form\DataTransformer\MultipleFileDataTransformer;
+use EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use EMC\FileinputBundle\Form\DataTransformer\FileDataTransformer;
-use EMC\FileinputBundle\Form\DataTransformer\MultipleFileDataTransformer;
-use EMC\FileinputBundle\Entity\FileInterface;
-use EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager;
-use EMC\FileinputBundle\Form\DataTransformer\DataTransformerInterface;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormEvent;
-use Doctrine\Common\Annotations\AnnotationReader;
-use EMC\FileinputBundle\Annotation\Fileinput;
 
 class FileinputType extends AbstractType {
 
@@ -129,7 +129,7 @@ class FileinputType extends AbstractType {
         ));
     }
 
-    public function getName() {
+    public function getBlockPrefix() {
         return 'fileinput';
     }
 

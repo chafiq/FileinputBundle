@@ -2,8 +2,8 @@
 
 namespace EMC\FileinputBundle\Driver;
 
-use Vimeo\Vimeo;
 use EMC\FileinputBundle\Entity\FileInterface;
+use Vimeo\Vimeo;
 
 class VimeoDriver implements DriverInterface {
 
