@@ -16,7 +16,7 @@ services:
             - { name: form.type, alias: fileinput }
         calls:
             - [ setUploadableManager, ['@emc.fileinput.uploadable.manager']]
-            - [ setFileClass, ['emc_fileinput.file_class%']]
+            - [ setFileClass, ['%emc_fileinput.file_class%']]
 
     emc.fileinput.uploadable.manager:
         class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager
