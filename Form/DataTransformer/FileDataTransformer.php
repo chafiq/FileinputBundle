@@ -47,12 +47,11 @@ class FileDataTransformer extends AbstractDataTransformer
             if ($this->annotation && $resampling = $this->annotation->getResample() && $data['path']->getMimeType()) {
                 $image = new \Imagick($file->getPath()->getPathname());
                 $image->resampleImage(
-                    isset($resampling['dpi']) ?? 72,                        // Default DPI X => 72
-                    isset($resampling['dpi']) ?? 72,                        // Default DPI X => 72
-                    isset($resampling['filter']) ?? \Imagick::FILTER_UNDEFINED,  // Default Filter => No filter
-                    isset($resampling['blur']) ?? 1                               // default Blur = 1 => no changes
+                    isset($resampling['dpi']) ? $resampling['dpi'] : 72, // Default DPI X => 72
+                    isset($resampling['dpi']) ? $resampling['dpi'] : 72, // Default DPI X => 72
+                    isset($resampling['filter']) ? $resampling['filter'] : \Imagick::FILTER_UNDEFINED, // Default Filter => No filter
+                    isset($resampling['blur']) ? $resampling['blur'] : 1 // default Blur = 1 => no changes
                 );
-
                 $image->writeImage();
             }
 

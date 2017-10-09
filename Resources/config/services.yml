@@ -7,16 +7,16 @@ services:
         class: '%file.listener.class%'
         arguments: ['@emc.fileinput.uploadable.manager']
         tags:
-            - { name: doctrine.event_listener, event: prePersist}
-            - { name: doctrine.event_listener, event: preUpdate}
+            - { name: doctrine.event_listener, event: prePersist }
+            - { name: doctrine.event_listener, event: preUpdate }
 
     emc.fileinput.form.type:
         class: '%form.type.fileinput.class%'
         tags:
             - { name: form.type, alias: fileinput }
         calls:
-            - [ setUploadableManager, ['@emc.fileinput.uploadable.manager']]
-            - [ setFileClass, ['emc_fileinput.file_class%']]
+            - [setUploadableManager, ['@emc.fileinput.uploadable.manager']]
+            - [setFileClass, ['%emc_fileinput.file_class%']]
 
     emc.fileinput.uploadable.manager:
         class: EMC\FileinputBundle\Gedmo\Uploadable\UploadableManager
