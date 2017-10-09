@@ -1,6 +1,9 @@
 services:
     app.exception_listener:
         class: EMC\FileinputBundle\EventListener\ExceptionListener
-        arguments: ['@doctrine.orm.entity_manager', '@liip_imagine.filter.configuration', '%emc_fileinput.file_class%']
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@liip_imagine.filter.configuration'
+            - '%emc_fileinput.file_class%'
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
