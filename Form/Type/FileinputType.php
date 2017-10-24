@@ -134,9 +134,7 @@ class FileinputType extends AbstractType
             'error_bubbling' => false,
             'legend'         => false,
         ));
-        $resolver->setAllowedTypes(array(
-            'legend' => 'boolean',
-        ));
+        $resolver->setAllowedTypes('legend', 'boolean');
     }
 
     public function getBlockPrefix()
