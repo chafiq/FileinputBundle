@@ -366,8 +366,19 @@ abstract class File implements FileInterface {
 	}
 
 
-	public static function createFromBase64($base64, $name = null) {
 
+    public static function createFile(UploadedFile $uploadedFile, $name = null)
+    {
+        /* @var $file FileInterface */
+        $file = new static;
+        $file->setName($name);
+        $file->setPath($uploadedFile);
+
+        return $file;
+    }
+
+    public static function createFromBase64($base64, $name = null)
+    {
         if (!is_string($base64) || !preg_match('/^data:(image\/([a-z]+));base64,(.*)$/', $base64, $matches)) {
             throw new \InvalidArgumentException('Base64 string format required');
         }
@@ -381,14 +392,7 @@ abstract class File implements FileInterface {
         fwrite($fp, base64_decode($data));
         fclose($fp);
 
-        $uploadedFile = new UploadedFile($path, $path, $mimeType, filesize($path));
-
-        /* @var $file FileInterface */
-        $file = new static;
-        $file->setName($name);
-        $file->setPath($uploadedFile);
-
-        return $file;
+        return static::createFile(new UploadedFile($path, $path, $mimeType, filesize($path)), $name);
     }
 
 
