@@ -3,6 +3,7 @@
 namespace EMC\FileinputBundle\Form\Type;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ORM\EntityManagerInterface;
 use EMC\FileinputBundle\Annotation\Fileinput;
 use EMC\FileinputBundle\Entity\FileInterface;
 use EMC\FileinputBundle\Form\DataTransformer\DataTransformerInterface;
@@ -36,6 +37,11 @@ class FileinputType extends AbstractType
      */
     private $dataTransformer;
 
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
     function setUploadableManager(UploadableManager $uploadableManager)
     {
         $this->uploadableManager = $uploadableManager;
@@ -44,6 +50,11 @@ class FileinputType extends AbstractType
     function setFileClass($fileClass)
     {
         $this->fileClass = $fileClass;
+    }
+
+    function setEntityManager(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
     }
 
     public function buildView(FormView $view, FormInterface $form, array $options)
@@ -108,13 +119,10 @@ class FileinputType extends AbstractType
                     return;
                 }
 
-                $property = $form->getName();
-
-                $reflectionProperty = new \ReflectionProperty($dataClass, $property);
+                $reflectionProperty = $this->entityManager->getClassMetadata($dataClass)->getReflectionProperty($form->getName());
 
                 // Prepare doctrine annotation reader
                 $reader = new AnnotationReader();
-
                 /* @var $annotation Fileinput */
                 if ($annotation = $reader->getPropertyAnnotation($reflectionProperty, Fileinput::class)) {
                     $dataTransformer->setAnnotation($annotation);
