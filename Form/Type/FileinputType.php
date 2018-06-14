@@ -75,15 +75,16 @@ class FileinputType extends AbstractType
         $builder->add('path',
             FileType::class,
             array(
-                'data_class'            => null,
-                'required'              => false,
-                'multiple'              => $options['multiple'],
-                'mapped'                => true,
-                'attr'                  => array(
+                'data_class'             => null,
+                'required'               => false,
+                'multiple'               => $options['multiple'],
+                'mapped'                 => true,
+                'attr'                   => array(
                     'accept'             => $options['accept'],
                     'data-max-file-size' => $options['max_size'],
+                    'data-drop-zone'     => $options['drop_zone'],
                 ),
-                'post_max_size_message' => $options['max_size'],
+                'post_max_size_message'  => $options['max_size'],
             ));
 
 
@@ -133,8 +134,10 @@ class FileinputType extends AbstractType
             'max_size'       => 100000,
             'error_bubbling' => false,
             'legend'         => false,
+            'drop_zone'      => false,
         ));
         $resolver->setAllowedTypes('legend', 'boolean');
+        $resolver->setAllowedTypes('drop_zone', 'boolean');
     }
 
     public function getBlockPrefix()
