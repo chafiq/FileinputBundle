@@ -60,9 +60,10 @@ function handleFileinput(input) {
             removeIcon: '<i class="icon-remove"></i>',
         },
         showUpload: false,
+        dropZoneEnabled: input.hasAttribute('data-drop-zone'),
         showRemove: input.multiple,
-        validateInitialCount: true,
         overwriteInitial: !input.multiple,
+        validateInitialCount: true,
         layoutTemplates: layoutTemplates,
         previewFileIconSettings: {
             doc: '<i class="fa fa-file-word-o text-primary"></i>',
