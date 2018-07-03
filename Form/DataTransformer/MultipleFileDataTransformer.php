@@ -15,22 +15,22 @@ class MultipleFileDataTransformer extends AbstractDataTransformer
         if ($files instanceof Collection) {
             return array('_path' => $files);
         }
+
         return array('_path' => new ArrayCollection());
     }
 
-    public function reverseTransform($data) {
+    public function reverseTransform($data)
+    {
         $collection = $data['_path'];
 
         if ($collection instanceof PersistentCollection) {
-            $deletedIds = array();
-            if (($deletedIds = $data['_delete']) !== null && strlen($deletedIds) > 0) {
-                $deletedIds = array_filter(array_map('intval', explode(',', $deletedIds)));
+            $deletedIds = json_decode($data['delete'], true) ?: [];
+            $deletedIds = array_map('intval', $deletedIds);
 
-                /* @var $file \EMC\FileinputBundle\Entity\FileInterface */
-                foreach ($collection as $file) {
-                    if (in_array($file->getId(), $deletedIds, true)) {
-                        $collection->removeElement($file);
-                    }
+            /* @var $file \EMC\FileinputBundle\Entity\FileInterface */
+            foreach ($collection as $file) {
+                if (in_array($file->getId(), $deletedIds, true)) {
+                    $collection->removeElement($file);
                 }
             }
         }
@@ -48,10 +48,22 @@ class MultipleFileDataTransformer extends AbstractDataTransformer
             }
         }
 
-        if (isset($data['name'])) {
-            foreach ($collection as $file) {
-                $idx = $file->getPath() instanceof UploadedFile ? $file->getPath()->getClientOriginalName() : $file->getId();
+        foreach ($collection as $file) {
+            $idx = $file->getPath() instanceof UploadedFile ? $file->getPath()->getClientOriginalName() : $file->getId();
 
+            if (isset($data['position'][$idx])) {
+                $file->setPosition($data['position'][$idx]);
+            }
+
+            if (isset($data['name'][$idx])) {
+                $file->setName($data['name'][$idx]);
+            }
+        }
+
+        foreach ($collection as $file) {
+            $idx = $file->getPath() instanceof UploadedFile ? $file->getPath()->getClientOriginalName() : $file->getId();
+
+            if (isset($data['name'])) {
                 if (isset($data['name'][$idx])) {
                     $file->setName($data['name'][$idx]);
                 }
@@ -60,5 +72,4 @@ class MultipleFileDataTransformer extends AbstractDataTransformer
 
         return $collection;
     }
-
 }

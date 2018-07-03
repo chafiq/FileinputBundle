@@ -74,6 +74,18 @@ interface FileInterface {
      * @return string
      */
     public function getSize();
+
+    /**
+     * @return int
+     */
+    public function getPosition();
+
+    /**
+     * @param int $position
+     *
+     * @return FileInterface
+     */
+    public function setPosition($position);
     
     /**
      * @return string
