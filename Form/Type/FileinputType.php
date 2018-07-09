@@ -122,7 +122,7 @@ class FileinputType extends AbstractType
                     return;
                 }
 
-                $reflectionProperty = $this->entityManager->getClassMetadata($dataClass)->getReflectionProperty($form->getName());
+                $reflectionProperty = new \ReflectionProperty($dataClass, $form->getName());
 
                 // Prepare doctrine annotation reader
                 $reader = new AnnotationReader();
