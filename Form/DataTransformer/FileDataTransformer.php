@@ -44,6 +44,10 @@ class FileDataTransformer extends AbstractDataTransformer
             $file = $file ?: new $this->fileClass;
             $file->setPath($data['path']);
 
+            if ($data['path']->getClientOriginalName()) {
+                $file->setName($data['path']->getClientOriginalName());
+            }
+
             if (isset($data['name'])) {
                 $file->setName($data['name']);
             }
