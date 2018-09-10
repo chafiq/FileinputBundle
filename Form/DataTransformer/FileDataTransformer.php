@@ -24,9 +24,14 @@ class FileDataTransformer extends AbstractDataTransformer
 
         // File from DB
         if ($data['path'] === null) {
-            if ($file instanceof FileInterface && $file->getId() === (int)$data['_delete']) {
+
+            $deletedIds = json_decode($data['delete'], true) ?: [];
+            $deletedIds = array_map('intval', $deletedIds);
+
+            if ($file instanceof FileInterface && in_array($file->getId(), $deletedIds, true)) {
                 return null;
             }
+
             if (isset($data['name'])) {
                 $file->setName($data['name']);
             }

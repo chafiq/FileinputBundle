@@ -3,10 +3,11 @@
         {{ form_widget(form.path, {"attr" : attr|merge({
             "class" : "fileinput form-control",
             "data-files" : files|json_encode(),
-            'data-locale':app.request.locale,
-            "_delete" : form._delete.vars.id,
-            "_name" : form.name.vars.full_name|default(null)
+            'data-locale': app.request.locale,
+            "data-delete" : form.delete.vars.id,
+            "data-legend" : form.name.vars.full_name|default(null),
+            "data-position" : form.position.vars.full_name
         })} ) }}
-        {{ form_widget(form._delete) }}
+        {{ form_widget(form.delete) }}
     {% endspaceless %}
 {% endblock %}

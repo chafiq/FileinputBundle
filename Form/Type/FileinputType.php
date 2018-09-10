@@ -3,6 +3,7 @@
 namespace EMC\FileinputBundle\Form\Type;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ORM\EntityManagerInterface;
 use EMC\FileinputBundle\Annotation\Fileinput;
 use EMC\FileinputBundle\Entity\FileInterface;
 use EMC\FileinputBundle\Form\DataTransformer\DataTransformerInterface;
@@ -36,6 +37,11 @@ class FileinputType extends AbstractType
      */
     private $dataTransformer;
 
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
     function setUploadableManager(UploadableManager $uploadableManager)
     {
         $this->uploadableManager = $uploadableManager;
@@ -44,6 +50,11 @@ class FileinputType extends AbstractType
     function setFileClass($fileClass)
     {
         $this->fileClass = $fileClass;
+    }
+
+    function setEntityManager(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
     }
 
     public function buildView(FormView $view, FormInterface $form, array $options)
@@ -61,32 +72,34 @@ class FileinputType extends AbstractType
                 $files = array($view->vars['value']['_path']->getMetadata());
             }
         }
+
+        usort($files, function($file1, $file2){
+            if ($file1['position'] === $file2['position']) {
+                return 0;
+            }
+            return $file1['position'] > $file2['position'] ? 1 : -1;
+        });
+
         $view->vars['files'] = $files;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('_delete',
-            HiddenType::class,
-            array(
-                'required' => false,
-            ));
+        $builder->add('path', FileType::class, [
+            'data_class'             => null,
+            'required'               => false,
+            'multiple'               => $options['multiple'],
+            'mapped'                 => true,
+            'attr'                   => array(
+                'accept'             => $options['accept'],
+                'data-max-file-size' => $options['max_size'],
+                'data-drop-zone'     => $options['drop_zone'],
+            ),
+            'post_max_size_message'  => $options['max_size'],
+        ]);
 
-        $builder->add('path',
-            FileType::class,
-            array(
-                'data_class'             => null,
-                'required'               => false,
-                'multiple'               => $options['multiple'],
-                'mapped'                 => true,
-                'attr'                   => array(
-                    'accept'             => $options['accept'],
-                    'data-max-file-size' => $options['max_size'],
-                    'data-drop-zone'     => $options['drop_zone'],
-                ),
-                'post_max_size_message'  => $options['max_size'],
-            ));
-
+        $builder->add('delete', HiddenType::class, ['required' => false]);
+        $builder->add('position', HiddenType::class, ['required' => false]);
 
         if ($options['legend']) {
             $builder->add('name', HiddenType::class);
@@ -109,13 +122,10 @@ class FileinputType extends AbstractType
                     return;
                 }
 
-                $property = $form->getName();
-
-                $reflectionProperty = new \ReflectionProperty($dataClass, $property);
+                $reflectionProperty = new \ReflectionProperty($dataClass, $form->getName());
 
                 // Prepare doctrine annotation reader
                 $reader = new AnnotationReader();
-
                 /* @var $annotation Fileinput */
                 if ($annotation = $reader->getPropertyAnnotation($reflectionProperty, Fileinput::class)) {
                     $dataTransformer->setAnnotation($annotation);
@@ -127,7 +137,7 @@ class FileinputType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         parent::configureOptions($resolver);
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'data_class'     => null,
             'multiple'       => false,
             'accept'         => '',
@@ -135,7 +145,7 @@ class FileinputType extends AbstractType
             'error_bubbling' => false,
             'legend'         => false,
             'drop_zone'      => false,
-        ));
+        ]);
         $resolver->setAllowedTypes('legend', 'boolean');
         $resolver->setAllowedTypes('drop_zone', 'boolean');
     }

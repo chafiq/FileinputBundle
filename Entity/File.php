@@ -69,6 +69,12 @@ abstract class File implements FileInterface {
     protected $driver;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @var integer
+     */
+    protected $position;
+
+    /**
      * @var \EMC\FileinputBundle\Driver\DriverInterface
      */
     private $_driver;
@@ -297,7 +303,8 @@ abstract class File implements FileInterface {
             'path' => $this->getUrl(),
             'mimeType' => $this->getMimeType(),
             'size' => $this->getHumanReadableSize(),
-            'extension' => $this->getExtension()
+            'extension' => $this->getExtension(),
+            'position' => $this->getPosition()
         );
     }
 
@@ -365,7 +372,25 @@ abstract class File implements FileInterface {
 		return $this;
 	}
 
+    /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
 
+    /**
+     * @param int $position
+     *
+     * @return FileInterface
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+
+        return $this;
+    }
 
     public static function createFile(UploadedFile $uploadedFile, $name = null)
     {

@@ -15,6 +15,7 @@ services:
         tags:
             - { name: form.type, alias: fileinput }
         calls:
+            - [setEntityManager, ['@doctrine.orm.default_entity_manager']]
             - [setUploadableManager, ['@emc.fileinput.uploadable.manager']]
             - [setFileClass, ['%emc_fileinput.file_class%']]
 
