@@ -12,16 +12,24 @@ class MultipleFileDataTransformer extends AbstractDataTransformer
 {
     public function transform($files)
     {
-        if ($files instanceof Collection) {
-            return array('_path' => $files);
-        }
-
-        return array('_path' => new ArrayCollection());
+        return [
+            '_path' => $files instanceof Collection ? $files : new ArrayCollection(),
+            'path' => [],
+            'position' => '',
+            'name' => ''
+        ];
     }
 
     public function reverseTransform($data)
     {
         $collection = $data['_path'];
+
+        if (isset($data['position']) && is_string($data['position'])) {
+            $data['position'] = json_decode($data['position'], true);
+        }
+        if (isset($data['name']) && is_string($data['name'])) {
+            $data['name'] = json_decode($data['name'], true);
+        }
 
         if ($collection instanceof PersistentCollection) {
             $deletedIds = json_decode($data['delete'], true) ?: [];
@@ -51,11 +59,11 @@ class MultipleFileDataTransformer extends AbstractDataTransformer
         foreach ($collection as $file) {
             $idx = $file->getPath() instanceof UploadedFile ? $file->getPath()->getClientOriginalName() : $file->getId();
 
-            if (isset($data['position'][$idx])) {
+            if (is_array($data['position']) && isset($data['position'][$idx])) {
                 $file->setPosition($data['position'][$idx]);
             }
 
-            if (isset($data['name'][$idx])) {
+            if (is_array($data['name']) && isset($data['name'][$idx])) {
                 $file->setName($data['name'][$idx]);
             }
         }
@@ -63,10 +71,8 @@ class MultipleFileDataTransformer extends AbstractDataTransformer
         foreach ($collection as $file) {
             $idx = $file->getPath() instanceof UploadedFile ? $file->getPath()->getClientOriginalName() : $file->getId();
 
-            if (isset($data['name'])) {
-                if (isset($data['name'][$idx])) {
-                    $file->setName($data['name'][$idx]);
-                }
+            if (is_array($data['name']) && isset($data['name'][$idx])) {
+                $file->setName($data['name'][$idx]);
             }
         }
 

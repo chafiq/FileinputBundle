@@ -8,6 +8,6 @@
             "data-legend" : form.name.vars.full_name|default(null),
             "data-position" : form.position.vars.full_name
         })} ) }}
-        {{ form_widget(form.delete) }}
+        {{ form_rest(form) }}
     {% endspaceless %}
 {% endblock %}

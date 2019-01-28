@@ -11,11 +11,12 @@ class FileDataTransformer extends AbstractDataTransformer
 {
     public function transform($file)
     {
-        if ($file instanceof FileInterface) {
-            return ['_path' => $file];
-        }
-
-        return ['_path' => null];
+        return [
+            '_path' => $file instanceof FileInterface ? $file : null,
+            'delete' => '',
+            'position' => '',
+            'name' => ''
+        ];
     }
 
     public function reverseTransform($data)
@@ -32,8 +33,10 @@ class FileDataTransformer extends AbstractDataTransformer
                 return null;
             }
 
-            if (isset($data['name'])) {
-                $file->setName($data['name']);
+            if ($file instanceof FileInterface) {
+                if (isset($data['name'])) {
+                    $file->setName($data['name']);
+                }
             }
 
             return $file;
@@ -42,15 +45,11 @@ class FileDataTransformer extends AbstractDataTransformer
         // File to Upload
         if ($data['path'] instanceof UploadedFile) {
             $file = $file ?: new $this->fileClass;
+
             $file->setPath($data['path']);
 
-            if ($data['path']->getClientOriginalName()) {
-                $file->setName($data['path']->getClientOriginalName());
-            }
+            $file->setName($data['name'] ?? $file->getPath()->getClientOriginalName());
 
-            if (isset($data['name'])) {
-                $file->setName($data['name']);
-            }
             $this->markEntityToUpload($file, $data['path'], $this->annotation);
             // Resampling image with IMAGICK methods
             if ($this->annotation && $resampling = $this->annotation->getResample() && $data['path']->getMimeType()) {

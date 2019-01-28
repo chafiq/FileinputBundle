@@ -2,7 +2,7 @@ import Sortable from 'sortablejs';
 import 'bootstrap-fileinput';
 import 'bootstrap-fileinput/themes/fa/theme';
 import 'bootstrap-fileinput/js/locales/fr';
-import 'bootstrap/js/modal';
+import 'bootstrap/js/src/modal';
 
 (function ($, Sortable) {
     function handleFileinputs(container) {
@@ -20,18 +20,15 @@ import 'bootstrap/js/modal';
         var layoutTemplates = {};
         layoutTemplates.footer = '<div class="file-thumbnail-footer">';
 
+        var isMultiple = input.multiple;
+        var isSortable = input.dataset.position && isMultiple;
 
-        var isSortable = input.dataset.position && input.multiple;
+        var positionInput = isSortable ? document.querySelector('input[name="' + input.dataset.position + '"]') : null;
+        var legendInput = input.dataset.legend ? document.querySelector('input[name="' + input.dataset.legend + '"]') : null;
 
-        if (input.dataset.legend) {
-            layoutTemplates.footer +=  '<div class="input-group"><input type="text" data-type="legend" data-name="' + input.dataset.legend + (input.multiple ? '[_dataKey_]' : '') + '" placeholder="Name" class="form-control">{actions}</div>';
-            layoutTemplates.actions = '<div class="input-group-btn">{zoom} {delete}</div>';
-            layoutTemplates.actionDelete = '<button type="button" class="kv-file-remove btn btn-sm btn-warning" title="{removeTitle}"{dataKey}>{removeIcon}</button>';
-        }
-
-        if (isSortable) {
-            layoutTemplates.footer += '<input type="hidden" data-type="position" data-name="' + input.dataset.position + '[_dataKey_]">';
-        }
+        layoutTemplates.footer +=  '<div class="input-group"{dataKey}>' + (input.dataset.legend ? '<input type="text" data-type="legend" placeholder="Name" class="form-control">' : '') + '{actions}</div>';
+        layoutTemplates.actions = '<div class="input-group-btn">{zoom} {delete}</div>';
+        layoutTemplates.actionDelete = '<button type="button" class="kv-file-remove btn btn-sm btn-warning" title="{removeTitle}"{dataKey}>{removeIcon}</button>';
 
         layoutTemplates.footer += '</div>';
 
@@ -95,6 +92,27 @@ import 'bootstrap/js/modal';
         wrapper = input.parentNode.parentNode.parentNode.parentNode;
         dropZone = wrapper.querySelector('.file-preview-thumbnails');
 
+        var timer = null;
+        dropZone.addEventListener('keyup', function(event){
+            if (event.target instanceof HTMLInputElement && event.target.dataset.type === 'legend') {
+                clearTimeout(timer);
+                timer = setTimeout(function(){ onKeyup(event); }, 300);
+            }
+        });
+
+        function onKeyup(event) {
+            var preview = event.target.closest(`[data-fileindex][data-key]`);
+
+            var value = event.target.value;
+            if (isMultiple) {
+                var names = legendInput.value ? JSON.parse(legendInput.value) : {};
+                names[preview.dataset.key] = event.target.value;
+                value = JSON.stringify(names);
+            }
+
+            legendInput.value = value;
+        }
+
         function onFileImagesLoaded(event) {
             var files = $fileinput.fileinput('getPreview');
             files.config.forEach(function(data, idx) {
@@ -105,16 +123,10 @@ import 'bootstrap/js/modal';
                     return;
                 }
 
-                Array.prototype.forEach.call(preview.querySelectorAll('[data-name*="_dataKey_"]'), function(element) {
-                    element.dataset.key = data.key;
-                    element.name = element.dataset.name.replace('_dataKey_', element.dataset.key);
+                preview.dataset.key = data.key;
 
-                    if (element.dataset.type === 'legend') {
-                        element.value = data.name;
-                    }
-
-                    delete(element.dataset.name);
-                });
+                var legendInput = preview.querySelector('[data-type="legend"]');
+                legendInput.value = data.name;
 
                 var btn = preview.querySelector('button.kv-file-remove');
                 if (btn) {
@@ -125,7 +137,7 @@ import 'bootstrap/js/modal';
             });
         }
 
-        if (!input.multiple) {
+        if (!isMultiple) {
             wrapper.classList.add('file-input-small');
         }
 
@@ -140,9 +152,9 @@ import 'bootstrap/js/modal';
             var files = $fileinput.fileinput('getFileStack');
             files.forEach(function(file, idx) {
                 var preview = dropZone.querySelector(`[data-fileindex="${idx}"]`);
+                preview.dataset.key = file.name;
                 Array.prototype.forEach.call(preview.querySelectorAll('[data-name*="_dataKey_"]'), function(element) {
                     element.dataset.key = file.name;
-                    element.name = element.dataset.name.replace('_dataKey_', file.name);
                     delete(element.dataset.name);
                 });
             });
@@ -170,13 +182,20 @@ import 'bootstrap/js/modal';
         }
 
         function onSortEnd(event) {
-            Array.prototype.forEach.call(dropZone.querySelectorAll(`[data-fileindex] input[type="hidden"][data-type="position"]`), function(element, idx) {
-                element.value = idx;
+            var positions = {};
+
+            Array.prototype.forEach.call(dropZone.querySelectorAll(`[data-fileindex][data-key]`), function(element, idx) {
+                positions[element.dataset.key] = idx;
             });
+
+            positionInput.value = JSON.stringify(positions);
         }
 
         onFileImagesLoaded();
-        onSortEnd();
+
+        if (isSortable) {
+            onSortEnd();
+        }
     }
 
     window.addEventListener('load', function (event) {
